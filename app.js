@@ -1925,27 +1925,43 @@ function talkToTom(main) {
   };
   chatAppend(log, 'Tom', tomPick(TOM_LINES.greet));
 }
+// Real, kid-friendly chess tips Tom gives when you ask him how to win or get better.
+const TOM_TIPS = [
+  'To win, grab the center first: push your e and d pawns out! ♟️',
+  'Get your knights and bishops out early, before your queen. 🐴',
+  'Castle early so your king hides safe in the corner. 🏰',
+  'Every turn, look for checks, captures, and threats. 👀',
+  'Take any piece that nobody is guarding. 🍴',
+  'When you\'re ahead, trade pieces to make winning easy. 🔁',
+  'Try a fork: hit two pieces at once with your knight! 🐴',
+  'Guard your own pieces before you attack. 🛡️',
+  'Put your rooks on columns that have no pawns. 🏯',
+  'Watch your opponent\'s last move: what is it attacking? 👀',
+];
 // Tom is scripted (no real AI brain), but he reads what you typed and answers to it,
 // so it feels like a real chat. Each rule: [words to look for, what Tom replies].
 // The FIRST matching rule wins; if nothing matches he uses a friendly generic line.
+// '__TIP__' gives a real chess tip; '__PLAY__' offers a game.
 const TOM_RULES = [
-  [/\b(play|game|chess|match|vs|versus|beat|challenge|rematch)\b/i, '__PLAY__'],
-  [/\b(hi|hii+|hey|hello|yo|sup|howdy|hallo)\b/i, ['Hi there! 👋', 'Hey hey! 😄', 'Yo! 🦈']],
   [/\bhow are you|how r u|how are u|hows it going|how you doing\b/i, ['I\'m awesome! How are YOU? 😄', 'Super great! Ready to play? 🐐']],
-  [/\b(your name|whats your name|who are you|who r u)\b/i, ['I\'m Tom! I\'m 8 and I\'m the GOAT. 🐐👑']],
   [/\b(how old|your age|old are you)\b/i, ['I\'m 8 years old! How old are you? 😄']],
+  [/\b(your name|whats your name|who are you|who r u)\b/i, ['I\'m Tom! I\'m 8 and I\'m the GOAT. 🐐👑']],
+  // Asking HOW to win / beat / play / get better → answer with a real tip.
+  [/how (to|do|does|can|could|would|should|d[oi]).*(win|beat|play|castl|check|attack|good|better|move|open|defend|fork|mate|start)/i, '__TIP__'],
+  [/\b(tips?|tricks?|advice|strateg|best move|best opening|get good|get better|be better|checkmate|help me)\b/i, '__TIP__'],
+  [/\b(play|game|chess|match|vs|versus|challenge|rematch)\b/i, '__PLAY__'],
+  [/\b(hi|hii+|hey|hello|yo|sup|howdy|hallo)\b/i, ['Hi there! 👋', 'Hey hey! 😄', 'Yo! 🦈']],
   [/\b(tim|brother|sibling)\b/i, ['Tim\'s my little brother! He\'s still learning. 👶']],
   [/shark|animal|ocean|\bseas?\b|fish/i, ['Sharks are the BEST! That\'s why I\'m 🦈.']],
   [/\b(love|like you|friend|nice|cool|awesome|amazing|great job|good job)\b/i, ['Aww, you\'re cool too! 😄', 'Thanks! You\'re awesome! 🌟']],
   [/\b(bye|goodbye|see ya|cya|good night|goodnight|gtg)\b/i, ['Bye! Come back and play soon! 👋', 'See ya! 🐐']],
   [/\b(thanks|thank you|thx|ty)\b/i, ['No problem! 😄', 'Anytime! 🦈']],
-  [/\b(win|won|i beat|i can beat)\b/i, ['Ha! Wanna try? Tap ♟️ Play me! 🐐'],],
-  [/\b(lose|lost|i lost|too hard|hard)\b/i, ['Don\'t worry — you\'ll get better every game! 💪']],
-  [/\b(help|how do|teach|learn|tips|trick)\b/i, ['Tap ♟️ Play me and I\'ll show you some tricks! 🐐']],
+  [/\b(win|won|i beat|i can beat)\b/i, '__TIP__'],
+  [/\b(lose|lost|i lost|too hard|hard)\b/i, ['Don\'t worry, you\'ll get better every game! 💪']],
   [/\b(haha|lol|lmao|hehe|funny|😂|🤣)\b/i, ['Hehe! 😎', 'Haha yeah! 😄']],
   [/\b(happy|good|fine|ok|okay|yes|yeah|yay)\b/i, ['Awesome! 😄', 'Let\'s go! ♟️']],
   [/\b(no|nope|nah|sad|bad|angry|mad)\b/i, ['Aw, cheer up! A game always helps. 🐐']],
-  [/\?\s*$/, ['Good question! Hmm… I mostly just think about chess. 🐐', 'Not sure! But I know chess. Wanna play? ♟️']],
+  [/\?\s*$/, '__TIP__'],   // any other question → give a useful chess tip, not a random line
 ];
 function tomSay(log, text) {
   chatAppend(log, 'You', text);
@@ -1953,6 +1969,7 @@ function tomSay(log, text) {
   for (const [re, out] of TOM_RULES) {
     if (re.test(text)) {
       if (out === '__PLAY__') { reply = 'You wanna play me? Tap ♟️ Play me up top! 🐐'; isPlay = true; }
+      else if (out === '__TIP__') { reply = tomPick(TOM_TIPS); }
       else reply = tomPick(out);
       break;
     }
