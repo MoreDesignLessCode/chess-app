@@ -1925,19 +1925,71 @@ function talkToTom(main) {
   };
   chatAppend(log, 'Tom', tomPick(TOM_LINES.greet));
 }
-// Real, kid-friendly chess tips Tom gives when you ask him how to win or get better.
+// A big pool of real, kid-friendly chess tips. Tom pulls a fresh one each time you
+// ask him a chess question, so it feels like he knows a ton (and never repeats twice
+// in a row, thanks to pickTip below).
 const TOM_TIPS = [
+  // Opening and development
   'To win, grab the center first: push your e and d pawns out! ♟️',
   'Get your knights and bishops out early, before your queen. 🐴',
   'Castle early so your king hides safe in the corner. 🏰',
-  'Every turn, look for checks, captures, and threats. 👀',
-  'Take any piece that nobody is guarding. 🍴',
-  'When you\'re ahead, trade pieces to make winning easy. 🔁',
+  'Don\'t move the same piece twice in the opening. ♟️',
+  'Don\'t bring your queen out too soon, she gets chased around. 👑',
+  'A great first move is e4 or d4: straight for the middle. ➡️',
+  'Knights usually come out before bishops. 🐴',
+  'Move pieces, not lots of pawns, in the opening. 🧩',
+  // Tactics
   'Try a fork: hit two pieces at once with your knight! 🐴',
+  'A pin freezes a piece so it can\'t move out of the way. 📌',
+  'A skewer makes a big piece move so you grab the one behind. 🍢',
+  'A discovered attack: move one piece to unleash another. 💥',
+  'Double check is super strong: the king MUST move. ⚡',
+  'Every turn, look for checks, captures, and threats. 👀',
+  'Before you move, ask what your opponent just attacked. 🤔',
+  'Line pieces up and hunt for pins and skewers. 🎯',
+  // Safety and defense
+  'Take any piece that nobody is guarding. 🍴',
   'Guard your own pieces before you attack. 🛡️',
+  'If a piece is attacked: defend it, move it, or block. 🧱',
+  'Give your king an escape square so you don\'t get back-rank mated. 🚪',
+  'When you\'re in check you can move, block, or capture. 👑',
+  'Keep a wall of pawns in front of your castled king. 🧱',
+  // Piece values and trading
+  'Points: pawn 1, knight 3, bishop 3, rook 5, queen 9. 🔢',
+  'When you\'re ahead, trade pieces to make winning easy. 🔁',
+  'When you\'re behind, keep pieces on and make it tricky. 🌀',
+  'Count attackers and defenders before you trade on a square. 🧮',
+  'Two bishops are strong when the board opens up. ⛪⛪',
+  // Squares and pieces
   'Put your rooks on columns that have no pawns. 🏯',
+  'Knights love strong squares near the center. 🐴',
+  'Bishops like long, open diagonals. ↗️',
+  'Control the four center squares: they matter most. 🎯',
+  // Endgame
+  'In the endgame, march your king toward the center. 🚶',
+  'Push a passed pawn: one with no enemy pawns ahead of it. 🏁',
+  'Put your rook behind a passed pawn. 🏯',
+  'To mate with a queen, walk the enemy king to the edge. 👑',
+  // Traps to watch for
+  'Watch for Scholar\'s Mate: protect f7 (or f2) early. 🛡️',
+  'Never play f3 then g4: that\'s the Fool\'s Mate trap. 🚫',
+  'If a bishop and queen both aim at f7, defend it fast! 🎯',
+  // Mindset
+  'Slow down and double-check your move before you play it. 🐢',
+  'Found a good move? Look for an even better one. 🔍',
+  'Have a plan: fix your worst piece or attack a weakness. 🗺️',
+  'Losing teaches you more than winning, so keep going! 💪',
   'Watch your opponent\'s last move: what is it attacking? 👀',
 ];
+// Pick a tip without repeating the one Tom just said, so it feels like a huge, fresh pool.
+let _lastTipIdx = -1;
+function pickTip() {
+  if (TOM_TIPS.length < 2) return TOM_TIPS[0] || '';
+  let i;
+  do { i = Math.floor(Math.random() * TOM_TIPS.length); } while (i === _lastTipIdx);
+  _lastTipIdx = i;
+  return TOM_TIPS[i];
+}
 // Tom is scripted (no real AI brain), but he reads what you typed and answers to it,
 // so it feels like a real chat. Each rule: [words to look for, what Tom replies].
 // The FIRST matching rule wins; if nothing matches he uses a friendly generic line.
@@ -1969,7 +2021,7 @@ function tomSay(log, text) {
   for (const [re, out] of TOM_RULES) {
     if (re.test(text)) {
       if (out === '__PLAY__') { reply = 'You wanna play me? Tap ♟️ Play me up top! 🐐'; isPlay = true; }
-      else if (out === '__TIP__') { reply = tomPick(TOM_TIPS); }
+      else if (out === '__TIP__') { reply = pickTip(); }
       else reply = tomPick(out);
       break;
     }
