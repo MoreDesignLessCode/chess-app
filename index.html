@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>Chesser</title>
+  <!-- Critical CSS: dark bg + hide modals/inactive screens instantly, so there's
+       never a flash of unstyled content before styles.css loads. -->
+  <style>
+    html, body { margin: 0; background: #0b0c0b; color: #f1f3f0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif; }
+    .hidden { display: none !important; }
+    .screen { display: none; }
+    .screen.active { display: block; }
+  </style>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark" aria-label="Chesser bishop logo">
+        <svg viewBox="0 0 48 48" width="34" height="34" xmlns="http://www.w3.org/2000/svg" role="img">
+          <defs>
+            <linearGradient id="chesserBshp" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#7cc0ff" />
+              <stop offset="1" stop-color="#2f63e0" />
+            </linearGradient>
+          </defs>
+          <rect x="2" y="2" width="44" height="44" rx="12" fill="url(#chesserBshp)" />
+          <g fill="#ffffff">
+            <circle cx="24" cy="9" r="2.8" />
+            <path d="M24 12 C15 19 15 28 20 32 L28 32 C33 28 33 19 24 12 Z" />
+            <rect x="18.5" y="31.5" width="11" height="3" rx="1.5" />
+            <path d="M15 44 C15 35 33 35 33 44 Z" />
+            <rect x="14" y="42.6" width="20" height="3.2" rx="1.6" />
+          </g>
+          <path d="M22.5 17 L27 22.5" stroke="#2f63e0" stroke-width="2.4" stroke-linecap="round" />
+        </svg>
+      </span>
+      <span class="brand-name">Chesser</span>
+    </div>
+    <div class="topbar-right">
+      <button id="topbar-pay" class="topbar-pay-btn">&#128179; Pay</button>
+      <div id="membership-badge" class="membership-badge" title="Membership status">
+        <button id="auth-btn" class="auth-btn">Sign in</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- HOME / MODE SELECT -->
+  <section id="home" class="screen active">
+    <div id="streak-banner" class="streak-banner"></div>
+    <div class="mode-cards">
+      <button class="mode-card" data-mode="friends">
+        <div class="mode-icon">&#129309;</div>
+        <div class="mode-label">Chess with Friends <span class="free-pill">Free</span></div>
+        <div class="mode-sub">Two players, one board (pass &amp; play)</div>
+      </button>
+      <button class="mode-card" data-mode="learn">
+        <div class="mode-icon">&#127891;</div>
+        <div class="mode-label">Learn Chess <span class="free-pill">Free</span></div>
+        <div class="mode-sub">Lessons that teach you, one by one</div>
+      </button>
+      <button class="mode-card" data-mode="ai">
+        <div class="mode-icon">&#129302;</div>
+        <div class="mode-label">Chess with AI <span class="free-pill">Free</span></div>
+        <div class="mode-sub">Six difficulty levels</div>
+      </button>
+      <button class="mode-card" data-mode="bots">
+        <div class="mode-icon">&#128123;</div>
+        <div class="mode-label">Bots <span class="bronze-pill">&#129353; Bronze</span></div>
+        <div class="mode-sub">Play fun character bots</div>
+      </button>
+      <button class="mode-card" data-mode="analyze">
+        <div class="mode-icon">&#128269;</div>
+        <div class="mode-label">Analyzer <span class="bronze-pill">&#129353; Bronze</span></div>
+        <div class="mode-sub">Full game review by the real Stockfish engine</div>
+      </button>
+      <button class="mode-card" data-mode="puzzles">
+        <div class="mode-icon">&#129513;</div>
+        <div class="mode-label">Puzzles <span class="free-pill">Free</span></div>
+        <div class="mode-sub">10 a day free &middot; unlimited with Bronze</div>
+      </button>
+      <button class="mode-card" data-mode="packs">
+        <div class="mode-icon">&#127873;</div>
+        <div class="mode-label">Packs <span class="silver-pill">&#129352; Silver</span></div>
+        <div class="mode-sub">Open packs &middot; collect rare pieces</div>
+      </button>
+      <button class="mode-card" data-mode="chat">
+        <div class="mode-icon">&#128172;</div>
+        <div class="mode-label">Chat <span class="gold-pill">&#129351; Gold</span></div>
+        <div class="mode-sub">Talk to Tom &middot; or the whole world</div>
+      </button>
+      <button class="mode-card wide" data-mode="online">
+        <div class="mode-icon">&#127760;</div>
+        <div class="mode-label">Play Online <span class="free-pill">Free</span></div>
+        <div class="mode-sub">Play a real person live on the Chesser server</div>
+      </button>
+    </div>
+
+    <div id="difficulty-panel" class="difficulty-panel hidden">
+      <h2>Pick a difficulty</h2>
+      <div class="difficulty-grid">
+        <button class="diff-btn" data-diff="beginner"><span class="diff-dot d1"></span>Beginner</button>
+        <button class="diff-btn" data-diff="very-easy"><span class="diff-dot d2"></span>Very Easy</button>
+        <button class="diff-btn" data-diff="easy"><span class="diff-dot d3"></span>Easy</button>
+        <button class="diff-btn" data-diff="intermediate"><span class="diff-dot d4"></span>Intermediate</button>
+        <button class="diff-btn" data-diff="advanced"><span class="diff-dot d5"></span>Advanced</button>
+        <button class="diff-btn" data-diff="master"><span class="diff-dot d6"></span>Master</button>
+      </div>
+      <div class="engines-head">Engines &mdash; rated opponents (Stockfish is the real engine)</div>
+      <div id="engine-list" class="engine-list"></div>
+      <div class="side-pick">
+        Play as:
+        <label><input type="radio" name="side" value="w" checked /> White</label>
+        <label><input type="radio" name="side" value="b" /> Black</label>
+      </div>
+    </div>
+  </section>
+
+  <!-- GAME -->
+  <section id="game" class="screen">
+    <div class="game-layout">
+      <div class="board-col">
+        <div id="status-bar" class="status-bar">White to move</div>
+        <div class="board-wrap">
+          <div id="board" class="board"></div>
+        </div>
+        <div class="game-controls">
+          <button id="new-game" class="ctrl-btn">&#8617; New Game</button>
+          <button id="flip-board" class="ctrl-btn">&#8645; Flip</button>
+          <button id="open-analysis" class="ctrl-btn" title="Stockfish evaluation bar">&#9817; Stockfish</button>
+          <button id="open-analyzer" class="ctrl-btn" title="Stockfish game review">&#128269; Analyzer</button>
+          <button id="resign" class="ctrl-btn danger">Resign</button>
+        </div>
+        <div id="puzzle-controls" class="game-controls hidden">
+          <span id="puzzle-streak" class="puzzle-streak"></span>
+          <button id="puzzle-home" class="ctrl-btn">&#8592; Home</button>
+          <button id="puzzle-hint" class="ctrl-btn">&#128161; Hint</button>
+          <button id="puzzle-next" class="ctrl-btn">Next &#8594;</button>
+        </div>
+        <div id="puzzle-difficulty" class="puzzle-difficulty hidden">
+          <button class="pdiff-btn" data-plevel="easy">Easy</button>
+          <button class="pdiff-btn" data-plevel="normal">Normal</button>
+          <button class="pdiff-btn" data-plevel="hard">Hard</button>
+        </div>
+        <div id="online-chat" class="online-chat hidden">
+          <div class="chat-title">&#128172; Chat</div>
+          <div id="chat-log" class="chat-log"></div>
+          <div id="chat-quick" class="chat-quick hidden"></div>
+          <div id="chat-locked" class="chat-locked hidden">&#128274; Quick chat is a &#129351; Gold perk</div>
+        </div>
+      </div>
+
+      <aside class="side-col">
+        <div class="panel">
+          <div class="captured-row">
+            <span class="captured-label">Black lost</span>
+            <span id="captured-by-white" class="captured"></span>
+          </div>
+          <div class="captured-row">
+            <span class="captured-label">White lost</span>
+            <span id="captured-by-black" class="captured"></span>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>Moves</h3>
+          <ol id="move-list" class="move-list"></ol>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- CHAT ROOM: a sidebar of chats (Tom / World), a conversation on the right -->
+  <section id="chatroom" class="screen">
+    <div class="chatroom-top">
+      <button id="chat-back" class="ctrl-btn">&larr; Home</button>
+      <h2 class="chatroom-title">&#128172; Chat</h2>
+    </div>
+    <div class="chat-layout">
+      <aside class="chat-side">
+        <div class="chat-side-head">Chats</div>
+        <button class="chat-contact" data-chat="tom">
+          <span class="cc-face">&#129416;</span>
+          <span class="cc-body"><span class="cc-name">Tom</span><span class="cc-sub">age 8 &middot; the GOAT &#128081;</span></span>
+        </button>
+        <button class="chat-contact" data-chat="world">
+          <span class="cc-face">&#127760;</span>
+          <span class="cc-body"><span class="cc-name">World</span><span class="cc-sub">real players online</span></span>
+        </button>
+      </aside>
+      <div id="chat-main" class="chat-main"></div>
+    </div>
+  </section>
+
+  <!-- AUTH MODAL -->
+  <div id="auth-modal" class="modal-overlay hidden">
+    <div class="modal">
+      <button class="modal-close" id="auth-close">&times;</button>
+      <h2 id="auth-title">Sign in</h2>
+      <p class="auth-perk">
+        <span class="medal" title="Bronze member">&#129353;</span>
+        Bronze membership unlocks the Stockfish engine &amp; game review on every game.
+      </p>
+      <form id="auth-form">
+        <input id="auth-username" type="text" placeholder="Username" autocomplete="username" required />
+        <button type="button" id="auth-more" class="auth-more-btn">&#43; More &mdash; become &#129353; Bronze (password + email/phone)</button>
+        <input id="auth-password" type="password" placeholder="Password" autocomplete="new-password" />
+        <input id="auth-contact" type="text" placeholder="Email or phone (for Bronze)" autocomplete="email" />
+        <div id="auth-contact-note" class="auth-note"></div>
+        <div id="auth-error" class="auth-error"></div>
+        <button type="submit" class="primary-btn" id="auth-submit">Sign in</button>
+      </form>
+      <div class="auth-toggle" id="auth-toggle">
+        <span id="auth-toggle-text">New here?</span>
+        <button id="auth-toggle-btn" type="button">Create an account</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ANALYSIS MODAL -->
+  <div id="analysis-modal" class="modal-overlay hidden">
+    <div class="modal analysis-modal-box">
+      <button class="modal-close" id="analysis-close">&times;</button>
+      <div class="analysis-head">
+        <h2 id="analysis-title">Stockfish</h2>
+        <span id="analysis-lock" class="lock-chip">&#128274; Members</span>
+      </div>
+      <div id="analysis-locked" class="analysis-locked">
+        <p>The engine &amp; game review are a <strong>Bronze</strong> membership perk.</p>
+        <button id="unlock-analysis" class="primary-btn">Sign in to unlock</button>
+      </div>
+      <div id="analysis-content" class="analysis-content hidden">
+        <div class="eval-bar-wrap">
+          <div id="eval-bar" class="eval-bar"><span id="eval-fill" class="eval-fill"></span></div>
+          <span id="eval-num" class="eval-num">0.0</span>
+        </div>
+        <div id="best-lines" class="best-lines hidden"></div>
+        <div id="review-block" class="review-block">
+          <button id="review-game" class="primary-btn ghost">Review game</button>
+          <button id="cancel-review" class="primary-btn ghost danger hidden">Cancel review</button>
+          <div id="review-progress" class="review-progress"></div>
+          <div id="review-summary" class="review-summary hidden">
+            <div class="rev-col"><span class="rev-side">White</span><div id="rev-white" class="rev-counts"></div></div>
+            <div class="rev-col"><span class="rev-side">Black</span><div id="rev-black" class="rev-counts"></div></div>
+          </div>
+          <div id="review-moves" class="review-moves"></div>
+          <button id="view-live" class="primary-btn ghost hidden">&#9654; Back to live position</button>
+        </div>
+        <div class="engine-credit">Powered by <strong>Stockfish 16</strong></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ANALYZER CHOOSER MODAL -->
+  <div id="analyzer-modal" class="modal-overlay hidden">
+    <div class="modal">
+      <button class="modal-close" id="analyzer-close">&times;</button>
+      <h2>Analyzer</h2>
+      <p class="analyzer-intro">Review one of your games, or set up a board and analyze any position with Stockfish.</p>
+      <button id="analyze-setup" class="primary-btn">&#9823; Set up a board</button>
+      <h3 class="games-head">My games</h3>
+      <div id="games-list" class="games-list"></div>
+    </div>
+  </div>
+
+  <!-- PUZZLE TYPE CHOOSER -->
+  <div id="puzzle-type-modal" class="modal-overlay hidden">
+    <div class="modal">
+      <button class="modal-close" id="puzzle-type-close">&times;</button>
+      <h2>&#129513; Puzzles</h2>
+      <p class="analyzer-intro">What do you want to practice?</p>
+      <button id="ptype-mate" class="primary-btn">&#9818; Mate &mdash; find the checkmate</button>
+      <button id="ptype-tactic" class="primary-btn">&#9876;&#65039; Tactics &mdash; win the position</button>
+    </div>
+  </div>
+
+  <!-- PLAY ONLINE MODAL -->
+  <div id="online-modal" class="modal-overlay hidden">
+    <div class="modal">
+      <button class="modal-close" id="online-close">&times;</button>
+      <h2>&#127760; Play Online <span class="free-pill">Free</span></h2>
+      <div id="online-status" class="online-status">Play a real person on the Chesser server.</div>
+      <div id="online-spinner" class="online-spinner hidden"></div>
+      <button id="online-find" class="primary-btn">Find an opponent</button>
+      <button id="online-cancel" class="primary-btn ghost hidden">Cancel</button>
+      <p class="online-note">This uses the Chesser server (works on your computer / home network).
+        <button id="open-lichess" class="linklike">or open Lichess instead</button></p>
+    </div>
+  </div>
+
+  <!-- BOTS CHOOSER MODAL -->
+  <div id="bots-modal" class="modal-overlay hidden">
+    <div class="modal">
+      <button class="modal-close" id="bots-close">&times;</button>
+      <h2>Bots <span class="bronze-pill">&#129353; Bronze</span></h2>
+      <p class="analyzer-intro">Pick a character to play. Each bot has its own strength and style.</p>
+      <div id="bots-list" class="bots-list"></div>
+    </div>
+  </div>
+
+  <!-- PACKS MODAL -->
+  <div id="packs-modal" class="modal-overlay hidden">
+    <div class="modal packs-modal-box">
+      <button class="modal-close" id="packs-close">&times;</button>
+      <h2>&#127873; Packs</h2>
+      <div id="pack-reveal" class="pack-reveal hidden"></div>
+      <div id="packs-actions" class="packs-actions">
+        <button id="open-free-pack" class="primary-btn">Open Pack</button>
+        <div id="free-packs-left" class="free-packs-left"></div>
+        <button id="pay-btn" class="primary-btn silver-btn">&#128179; Pay to unlock packs</button>
+      </div>
+      <h3 class="collection-head">Your Collection <span id="collection-count"></span></h3>
+      <div id="collection-list" class="collection-list"></div>
+    </div>
+  </div>
+
+  <!-- PAY MODAL -->
+  <div id="pay-modal" class="modal-overlay hidden">
+    <div class="modal">
+      <button class="modal-close" id="pay-close">&times;</button>
+      <h2>&#128179; Pay</h2>
+      <p class="analyzer-intro">Pick a membership.</p>
+      <div id="pay-status" class="pay-status hidden"></div>
+      <button id="pay-demo" class="primary-btn demo-btn">&#127873; Free 2-month trial</button>
+      <button id="pay-demo-special" class="primary-btn special-btn">&#127878; July 4th Special &mdash; 1-week trial</button>
+      <div id="pay-trial-choose" class="pay-tier-choose hidden">
+        <button id="pay-trial-silver" class="primary-btn silver-btn">&#129352; as Silver</button>
+        <button id="pay-trial-gold" class="primary-btn gold-btn">&#129351; as Gold</button>
+      </div>
+      <div class="silver-note">First time only &mdash; pick one, no card needed.</div>
+      <div class="pay-or">or pay with card &mdash; Silver or Gold?</div>
+      <div id="pay-tier-choose" class="pay-tier-choose">
+        <button id="pay-pick-silver" class="primary-btn silver-btn">&#129352; Silver</button>
+        <button id="pay-pick-gold" class="primary-btn gold-btn">&#129351; Gold &mdash; + Tom &amp; chat</button>
+      </div>
+      <div id="pay-silver-plans" class="pay-plans hidden">
+        <button id="pay-s1" class="primary-btn silver-btn">&#128179; Silver &mdash; $1 for 1 year</button>
+        <button id="pay-s5" class="primary-btn silver-btn">&#128179; Silver &mdash; $5 forever</button>
+      </div>
+      <div id="pay-gold-plans" class="pay-plans hidden">
+        <button id="pay-g1" class="primary-btn gold-btn">&#128179; Gold &mdash; $5 for 1 year</button>
+        <button id="pay-g5" class="primary-btn gold-btn">&#128179; Gold &mdash; $25 forever</button>
+      </div>
+      <div class="silver-note">Demo &mdash; real card payments need a server (like online play).</div>
+    </div>
+  </div>
+
+  <!-- PROMOTION MODAL -->
+  <div id="promo-modal" class="modal-overlay hidden">
+    <div class="modal promo-modal">
+      <h2>Promote pawn</h2>
+      <div id="promo-choices" class="promo-choices"></div>
+    </div>
+  </div>
+
+  <!-- GAME OVER MODAL -->
+  <div id="over-modal" class="modal-overlay hidden">
+    <div class="modal">
+      <h2 id="over-title">Checkmate</h2>
+      <p id="over-text"></p>
+      <button class="primary-btn" id="over-newgame">New Game</button>
+    </div>
+  </div>
+
+  <!-- Signed-in profile name, bottom-right -->
+  <div id="profile-tag" class="profile-tag hidden">
+    <span class="medal">&#129353;</span>
+    <span class="ptag-text"><span id="profile-name"></span><span class="ptag-tier">Bronze member</span></span>
+  </div>
+
+  <!-- Music controls, bottom-center: on/off switch + a "More" button -->
+  <div class="music-bar">
+    <button id="music-toggle" class="music-toggle" aria-pressed="false" title="Background music">
+      <span class="music-icon">&#127925;</span>
+      <span class="music-label">Music: Off</span>
+    </button>
+    <button id="music-more" class="music-more" title="More music">&#9835; More</button>
+  </div>
+
+  <!-- MUSIC PANEL: 6 tunes (Bronze) + a playable piano (Silver) -->
+  <div id="music-modal" class="modal-overlay hidden">
+    <div class="modal music-modal">
+      <button class="modal-close" id="music-close" title="Close">&times;</button>
+      <h2>&#127925; Music</h2>
+
+      <h3 class="music-h3">Pick a tune <span class="perk-chip bronze">&#129353; Bronze</span></h3>
+      <div id="music-tracks" class="music-tracks"></div>
+
+      <h3 class="music-h3">Piano <span class="perk-chip silver">&#129352; Silver</span></h3>
+      <div id="piano" class="piano"></div>
+      <div id="piano-locked" class="piano-locked hidden">Get Silver to unlock the piano &#127929;</div>
+    </div>
+  </div>
+
+  <!-- CHESS TUTORIAL: learn one piece/skill per lesson, next unlocks after you finish -->
+  <div id="learn-modal" class="modal-overlay hidden">
+    <div class="modal learn-modal">
+      <button class="modal-close" id="learn-close" title="Close">&times;</button>
+      <h2>&#127891; Learn Chess</h2>
+
+      <div id="learn-pick" class="lesson-pick"></div>
+
+      <div id="learn-play" class="learn-play hidden">
+        <div class="lesson-top">
+          <span id="learn-name" class="lesson-name"></span>
+          <button id="learn-back" class="lesson-stop" title="Back to lessons">&times;</button>
+        </div>
+        <div id="learn-instruction" class="lesson-prompt"></div>
+        <div id="learn-board" class="learn-board"></div>
+        <div id="learn-feedback" class="learn-feedback"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="engine.js"></script>
+  <script src="sf.js"></script>
+  <script src="music.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

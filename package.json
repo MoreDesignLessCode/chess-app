@@ -1,0 +1,49 @@
+{
+  "name": "chesser",
+  "version": "1.0.0",
+  "description": "Chesser — play chess vs friends or AI (six difficulties) with Bronze-member engine analysis.",
+  "main": "electron/main.js",
+  "scripts": {
+    "start": "electron .",
+    "online": "node online-server.js",
+    "dist": "electron-builder",
+    "dist:mac": "electron-builder --mac",
+    "dist:win": "electron-builder --win",
+    "dist:linux": "electron-builder --linux"
+  },
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^31.7.7",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "com.chesser.app",
+    "productName": "Chesser",
+    "files": [
+      "electron/**",
+      "index.html",
+      "styles.css",
+      "app.js",
+      "engine.js",
+      "worker.js",
+      "sf.js",
+      "vendor/**"
+    ],
+    "mac": {
+      "target": "dmg",
+      "category": "public.app-category.games"
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "linux": {
+      "target": "AppImage",
+      "category": "Game"
+    }
+  },
+  "dependencies": {
+    "stockfish": "^16.0.0",
+    "ws": "^8.18.0"
+  }
+}

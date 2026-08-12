@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "chess-up",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["online-server.js"],
+      "port": 4180
+    }
+  ]
+}
