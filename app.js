@@ -1254,14 +1254,14 @@ function runAnalysis(opts) {
   });
 }
 
-// Format a centipawn value (white's perspective) for display.
+// Format an eval (white's perspective) for display. Shows the engine's EXACT centipawn
+// count (an integer), not a rounded pawn decimal, so it's never a little off.
 function fmtEval(cpWhite) {
   if (Math.abs(cpWhite) >= 90000) {
     const movesTo = Math.round((100000 - Math.abs(cpWhite)) / 100);
     return (cpWhite > 0 ? '+M' : '-M') + (movesTo || '');
   }
-  const pawns = cpWhite / 100;
-  return (pawns >= 0 ? '+' : '') + pawns.toFixed(2); // 2 decimals = precise centipawns
+  return (cpWhite >= 0 ? '+' : '') + cpWhite + ' cp'; // exact centipawns, e.g. "+13 cp"
 }
 
 function renderAnalysis(result, analyzedState) {
