@@ -443,6 +443,7 @@ function saveGame(resultText) {
 // --- Membership ---
 const MEMBERS_KEY = 'chessup_members';
 const SESSION_KEY = 'chessup_session';
+const LASTUSER_KEY = 'chessup_lastuser'; // who was signed in last, so we can auto-restore on restart
 
 function loadMembers() {
   try { return JSON.parse(localStorage.getItem(MEMBERS_KEY)) || {}; }
@@ -450,6 +451,19 @@ function loadMembers() {
 }
 function saveMembers(m) { localStorage.setItem(MEMBERS_KEY, JSON.stringify(m)); }
 function currentUser() { return localStorage.getItem(SESSION_KEY); }
+// Sign in and remember it, so a Bronze (or higher) account stays signed in next time.
+function setSession(user) { localStorage.setItem(SESSION_KEY, user); localStorage.setItem(LASTUSER_KEY, user); }
+// On startup, if the session was lost but the account still exists, bring it back — so your
+// membership does NOT drop to Free on restart. An explicit Sign out clears this, so it sticks.
+function restoreSession() {
+  if (currentUser()) return;
+  const last = localStorage.getItem(LASTUSER_KEY);
+  if (last && loadMembers()[last]) localStorage.setItem(SESSION_KEY, last);
+}
+function signOut() {
+  localStorage.removeItem(SESSION_KEY);
+  localStorage.removeItem(LASTUSER_KEY); // forget the account too, so restore doesn't sign back in
+}
 function isSignedIn() { return !!currentUser(); }
 // A signed-in account counts as Bronze only if it has a contact (email or phone).
 function hasContact() {
@@ -596,7 +610,9 @@ function renderMembership() {
         <button class="signout" id="signout-btn">Sign out</button>
       </span>`;
     $('signout-btn').onclick = () => {
-      localStorage.removeItem(SESSION_KEY);
+      // Guard it so a stray tap doesn't drop the kid back to Free.
+      if (!confirm('Sign out? You will go back to Free until you sign in again.')) return;
+      signOut();
       renderMembership();
       refreshAnalysisGate();
     };
@@ -749,7 +765,7 @@ function handleAuthSubmit(e) {
     if (!rec) { err.textContent = 'No account with that username — create one!'; return; }
     if (rec.pw && hashPw(pw) !== rec.pw) { err.textContent = pw ? 'Wrong password.' : 'This account has a password — enter it.'; return; }
   }
-  localStorage.setItem(SESSION_KEY, user);
+  setSession(user);
   closeAuth();
   renderMembership();
   refreshAnalysisGate();
@@ -3247,5 +3263,6 @@ function paintMusicBtnGlobal(on) {
 
 // ============ Init ============
 wireEvents();
+restoreSession();   // keep your membership across restarts (Bronze stays Bronze)
 renderMembership();
 renderEngineButtons();
