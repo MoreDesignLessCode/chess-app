@@ -1925,61 +1925,30 @@ function talkToTom(main) {
   };
   chatAppend(log, 'Tom', tomPick(TOM_LINES.greet));
 }
-// A big pool of real, kid-friendly chess tips. Tom pulls a fresh one each time you
-// ask him a chess question, so it feels like he knows a ton (and never repeats twice
-// in a row, thanks to pickTip below).
+// Exactly 20 real, kid-friendly chess tips. This is the true pool: Tom only ever
+// says one of these 20. The generator below dresses them up (openers, tails, and a
+// giant "#N of 1,000,000,000" label) so it feels like he has a billion.
 const TOM_TIPS = [
-  // Opening and development
   'To win, grab the center first: push your e and d pawns out! ♟️',
   'Get your knights and bishops out early, before your queen. 🐴',
   'Castle early so your king hides safe in the corner. 🏰',
-  'Don\'t move the same piece twice in the opening. ♟️',
   'Don\'t bring your queen out too soon, she gets chased around. 👑',
-  'A great first move is e4 or d4: straight for the middle. ➡️',
-  'Knights usually come out before bishops. 🐴',
-  'Move pieces, not lots of pawns, in the opening. 🧩',
-  // Tactics
+  'Every turn, look for checks, captures, and threats. 👀',
+  'Before you move, ask what your opponent just attacked. 🤔',
   'Try a fork: hit two pieces at once with your knight! 🐴',
   'A pin freezes a piece so it can\'t move out of the way. 📌',
   'A skewer makes a big piece move so you grab the one behind. 🍢',
-  'A discovered attack: move one piece to unleash another. 💥',
-  'Double check is super strong: the king MUST move. ⚡',
-  'Every turn, look for checks, captures, and threats. 👀',
-  'Before you move, ask what your opponent just attacked. 🤔',
-  'Line pieces up and hunt for pins and skewers. 🎯',
-  // Safety and defense
   'Take any piece that nobody is guarding. 🍴',
   'Guard your own pieces before you attack. 🛡️',
-  'If a piece is attacked: defend it, move it, or block. 🧱',
   'Give your king an escape square so you don\'t get back-rank mated. 🚪',
-  'When you\'re in check you can move, block, or capture. 👑',
-  'Keep a wall of pawns in front of your castled king. 🧱',
-  // Piece values and trading
   'Points: pawn 1, knight 3, bishop 3, rook 5, queen 9. 🔢',
   'When you\'re ahead, trade pieces to make winning easy. 🔁',
-  'When you\'re behind, keep pieces on and make it tricky. 🌀',
-  'Count attackers and defenders before you trade on a square. 🧮',
-  'Two bishops are strong when the board opens up. ⛪⛪',
-  // Squares and pieces
   'Put your rooks on columns that have no pawns. 🏯',
-  'Knights love strong squares near the center. 🐴',
-  'Bishops like long, open diagonals. ↗️',
-  'Control the four center squares: they matter most. 🎯',
-  // Endgame
   'In the endgame, march your king toward the center. 🚶',
   'Push a passed pawn: one with no enemy pawns ahead of it. 🏁',
-  'Put your rook behind a passed pawn. 🏯',
-  'To mate with a queen, walk the enemy king to the edge. 👑',
-  // Traps to watch for
   'Watch for Scholar\'s Mate: protect f7 (or f2) early. 🛡️',
-  'Never play f3 then g4: that\'s the Fool\'s Mate trap. 🚫',
-  'If a bishop and queen both aim at f7, defend it fast! 🎯',
-  // Mindset
   'Slow down and double-check your move before you play it. 🐢',
-  'Found a good move? Look for an even better one. 🔍',
   'Have a plan: fix your worst piece or attack a weakness. 🗺️',
-  'Losing teaches you more than winning, so keep going! 💪',
-  'Watch your opponent\'s last move: what is it attacking? 👀',
 ];
 // Pick a tip without repeating the one Tom just said, so it feels like a huge, fresh pool.
 let _lastTipIdx = -1;
@@ -2007,9 +1976,9 @@ function makeTip() {
   const open = tomPick(TIP_OPENERS);
   const tail = tomPick(TIP_TAILS);
   let s = open + body + (tail ? ' ' + tail : '');
-  if (Math.random() < 0.66) {                       // sell the "100 million tips" fantasy
-    const n = 1 + Math.floor(Math.random() * 99999999);
-    s = 'Tip #' + n.toLocaleString() + ' of 100,000,000 → ' + s;
+  if (Math.random() < 0.66) {                       // sell the "1 billion tips" fantasy
+    const n = 1 + Math.floor(Math.random() * 999999999);
+    s = 'Tip #' + n.toLocaleString() + ' of 1,000,000,000 → ' + s;
   }
   return s;
 }
@@ -2021,7 +1990,7 @@ const TOM_RULES = [
   [/\bhow are you|how r u|how are u|hows it going|how you doing\b/i, ['I\'m awesome! How are YOU? 😄', 'Super great! Ready to play? 🐐']],
   [/\b(how old|your age|old are you)\b/i, ['I\'m 8 years old! How old are you? 😄']],
   [/\b(your name|whats your name|who are you|who r u)\b/i, ['I\'m Tom! I\'m 8 and I\'m the GOAT. 🐐👑']],
-  [/how many (tips|do you know)|so many tips|million tips|100 ?mil/i, '__BRAG__'],
+  [/how many (tips|do you know)|so many tips|(million|billion) tips|\d ?(mil|bil)/i, '__BRAG__'],
   // Asking HOW to win / beat / play / get better → answer with a real tip.
   [/how (to|do|does|can|could|would|should|d[oi]).*(win|beat|play|castl|check|attack|good|better|move|open|defend|fork|mate|start)/i, '__TIP__'],
   [/\b(tips?|tricks?|advice|strateg|best move|best opening|get good|get better|be better|checkmate|help me)\b/i, '__TIP__'],
@@ -2046,7 +2015,7 @@ function tomSay(log, text) {
     if (re.test(text)) {
       if (out === '__PLAY__') { reply = 'You wanna play me? Tap ♟️ Play me up top! 🐐'; isPlay = true; }
       else if (out === '__TIP__') { reply = makeTip(); }
-      else if (out === '__BRAG__') { reply = 'I know 100 MILLION chess tips! 🐐👑 Here\'s one → ' + makeTip(); }
+      else if (out === '__BRAG__') { reply = 'I know 1 BILLION chess tips! 🐐👑 Here\'s one → ' + makeTip(); }
       else reply = tomPick(out);
       break;
     }
