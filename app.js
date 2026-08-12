@@ -1990,6 +1990,29 @@ function pickTip() {
   _lastTipIdx = i;
   return TOM_TIPS[i];
 }
+// Make Tom look like he has ~100 million tips WITHOUT writing 100 million. A tip is built
+// from swappable parts (opener + one or two base tips + tail), and about 2/3 of the time
+// it gets a giant random "#N of 100,000,000" label. ~40 base tips plus a few small part
+// lists multiply out to millions of wordings, so he almost never repeats himself.
+const TIP_OPENERS = ['', '', '', 'GOAT secret: ', 'Here\'s a good one: ', 'Try this: ', 'Pro move: ', 'Big tip: ', 'Sneaky one: ', 'Winning idea: ', 'Listen up: '];
+const TIP_CONNECTORS = ['Also,', 'Plus,', 'And remember,', 'One more:', 'Oh, and'];
+const TIP_TAILS = ['', '', '', '🐐', 'Trust me! 😎', 'That\'s how champs play. 🏆', 'You got this! 💪', 'Give it a go! 🎯', 'Sharks love it! 🦈', 'Easy wins! ✨'];
+function makeTip() {
+  let body = pickTip();
+  if (Math.random() < 0.5) {                       // sometimes chain a second, different tip
+    const b = pickTip();                            // pickTip won't repeat the one just used
+    const conn = tomPick(TIP_CONNECTORS);
+    body = body + ' ' + conn + ' ' + b.charAt(0).toLowerCase() + b.slice(1);
+  }
+  const open = tomPick(TIP_OPENERS);
+  const tail = tomPick(TIP_TAILS);
+  let s = open + body + (tail ? ' ' + tail : '');
+  if (Math.random() < 0.66) {                       // sell the "100 million tips" fantasy
+    const n = 1 + Math.floor(Math.random() * 99999999);
+    s = 'Tip #' + n.toLocaleString() + ' of 100,000,000 → ' + s;
+  }
+  return s;
+}
 // Tom is scripted (no real AI brain), but he reads what you typed and answers to it,
 // so it feels like a real chat. Each rule: [words to look for, what Tom replies].
 // The FIRST matching rule wins; if nothing matches he uses a friendly generic line.
@@ -1998,6 +2021,7 @@ const TOM_RULES = [
   [/\bhow are you|how r u|how are u|hows it going|how you doing\b/i, ['I\'m awesome! How are YOU? 😄', 'Super great! Ready to play? 🐐']],
   [/\b(how old|your age|old are you)\b/i, ['I\'m 8 years old! How old are you? 😄']],
   [/\b(your name|whats your name|who are you|who r u)\b/i, ['I\'m Tom! I\'m 8 and I\'m the GOAT. 🐐👑']],
+  [/how many (tips|do you know)|so many tips|million tips|100 ?mil/i, '__BRAG__'],
   // Asking HOW to win / beat / play / get better → answer with a real tip.
   [/how (to|do|does|can|could|would|should|d[oi]).*(win|beat|play|castl|check|attack|good|better|move|open|defend|fork|mate|start)/i, '__TIP__'],
   [/\b(tips?|tricks?|advice|strateg|best move|best opening|get good|get better|be better|checkmate|help me)\b/i, '__TIP__'],
@@ -2021,7 +2045,8 @@ function tomSay(log, text) {
   for (const [re, out] of TOM_RULES) {
     if (re.test(text)) {
       if (out === '__PLAY__') { reply = 'You wanna play me? Tap ♟️ Play me up top! 🐐'; isPlay = true; }
-      else if (out === '__TIP__') { reply = pickTip(); }
+      else if (out === '__TIP__') { reply = makeTip(); }
+      else if (out === '__BRAG__') { reply = 'I know 100 MILLION chess tips! 🐐👑 Here\'s one → ' + makeTip(); }
       else reply = tomPick(out);
       break;
     }
