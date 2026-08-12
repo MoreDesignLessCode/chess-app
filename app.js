@@ -1950,37 +1950,21 @@ const TOM_TIPS = [
   'Slow down and double-check your move before you play it. 🐢',
   'Have a plan: fix your worst piece or attack a weakness. 🗺️',
 ];
-// Pick a tip without repeating the one Tom just said, so it feels like a huge, fresh pool.
+// Tom "knows" a billion tips, but he only shares the first 20 (the list above). So every
+// tip he gives is one of these, numbered by its real position: "Tip #1 of 1,000,000,000",
+// "Tip #2 of 1,000,000,000", and so on up to #20. Openers and tails vary how he says it.
+// He won't hand you the same number twice in a row.
 let _lastTipIdx = -1;
-function pickTip() {
-  if (TOM_TIPS.length < 2) return TOM_TIPS[0] || '';
-  let i;
-  do { i = Math.floor(Math.random() * TOM_TIPS.length); } while (i === _lastTipIdx);
-  _lastTipIdx = i;
-  return TOM_TIPS[i];
-}
-// Make Tom look like he has ~100 million tips WITHOUT writing 100 million. A tip is built
-// from swappable parts (opener + one or two base tips + tail), and about 2/3 of the time
-// it gets a giant random "#N of 100,000,000" label. ~40 base tips plus a few small part
-// lists multiply out to millions of wordings, so he almost never repeats himself.
 const TIP_OPENERS = ['', '', '', 'GOAT secret: ', 'Here\'s a good one: ', 'Try this: ', 'Pro move: ', 'Big tip: ', 'Sneaky one: ', 'Winning idea: ', 'Listen up: '];
-const TIP_CONNECTORS = ['Also,', 'Plus,', 'And remember,', 'One more:', 'Oh, and'];
 const TIP_TAILS = ['', '', '', '🐐', 'Trust me! 😎', 'That\'s how champs play. 🏆', 'You got this! 💪', 'Give it a go! 🎯', 'Sharks love it! 🦈', 'Easy wins! ✨'];
 function makeTip() {
-  let body = pickTip();
-  if (Math.random() < 0.5) {                       // sometimes chain a second, different tip
-    const b = pickTip();                            // pickTip won't repeat the one just used
-    const conn = tomPick(TIP_CONNECTORS);
-    body = body + ' ' + conn + ' ' + b.charAt(0).toLowerCase() + b.slice(1);
-  }
+  let i;
+  do { i = Math.floor(Math.random() * TOM_TIPS.length); } while (i === _lastTipIdx && TOM_TIPS.length > 1);
+  _lastTipIdx = i;
   const open = tomPick(TIP_OPENERS);
   const tail = tomPick(TIP_TAILS);
-  let s = open + body + (tail ? ' ' + tail : '');
-  if (Math.random() < 0.66) {                       // sell the "1 billion tips" fantasy
-    const n = 1 + Math.floor(Math.random() * 999999999);
-    s = 'Tip #' + n.toLocaleString() + ' of 1,000,000,000 → ' + s;
-  }
-  return s;
+  const body = open + TOM_TIPS[i] + (tail ? ' ' + tail : '');
+  return 'Tip #' + (i + 1) + ' of 1,000,000,000 → ' + body;   // first 20 of the billion he knows
 }
 // Tom is scripted (no real AI brain), but he reads what you typed and answers to it,
 // so it feels like a real chat. Each rule: [words to look for, what Tom replies].
