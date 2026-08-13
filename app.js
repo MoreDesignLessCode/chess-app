@@ -1943,9 +1943,8 @@ function talkToTom(main) {
   };
   chatAppend(log, 'Tom', tomPick(TOM_LINES.greet));
 }
-// Exactly 20 real, kid-friendly chess tips. This is the true pool: Tom only ever
-// says one of these 20. The generator below dresses them up (openers, tails, and a
-// giant "#N of 1,000,000,000" label) so it feels like he has a billion.
+// 20 real, kid-friendly chess tips. Tom gives one of these (plus a Fool's Mate tip on
+// request). No fake "1 of a billion" count — that was a lie, so it's gone.
 const TOM_TIPS = [
   'To win, grab the center first: push your e and d pawns out! ♟️',
   'Get your knights and bishops out early, before your queen. 🐴',
@@ -1968,47 +1967,44 @@ const TOM_TIPS = [
   'Slow down and double-check your move before you play it. 🐢',
   'Have a plan: fix your worst piece or attack a weakness. 🗺️',
 ];
-// Tom "knows" a billion tips, but he only shares the first 20 (the list above). So every
-// tip he gives is one of these, numbered by its real position: "Tip #1 of 1,000,000,000",
-// "Tip #2 of 1,000,000,000", and so on up to #20. Openers and tails vary how he says it.
-// He won't hand you the same number twice in a row.
+// Tom gives one of the tips above, with a friendly opener/tail for variety, and never
+// the same one twice in a row. No fake count — he just shares real tips.
 let _lastTipIdx = -1;
 const TIP_OPENERS = ['', '', '', 'GOAT secret: ', 'Here\'s a good one: ', 'Try this: ', 'Pro move: ', 'Big tip: ', 'Sneaky one: ', 'Winning idea: ', 'Listen up: '];
 const TIP_TAILS = ['', '', '', '🐐', 'Trust me! 😎', 'That\'s how champs play. 🏆', 'You got this! 💪', 'Give it a go! 🎯', 'Sharks love it! 🦈', 'Easy wins! ✨'];
-function tipWithNumber(text, n) {                    // wrap a specific tip with the usual flavor + number
+// Wrap a tip with a friendly opener/tail (no fake "1 of a billion" count — that was a lie).
+function flavorTip(text) {
   const open = tomPick(TIP_OPENERS);
   const tail = tomPick(TIP_TAILS);
-  return 'Tip #' + n + ' of 1,000,000,000 → ' + open + text + (tail ? ' ' + tail : '');
+  return open + text + (tail ? ' ' + tail : '');
 }
 function makeTip() {
   let i;
   do { i = Math.floor(Math.random() * TOM_TIPS.length); } while (i === _lastTipIdx && TOM_TIPS.length > 1);
   _lastTipIdx = i;
-  return tipWithNumber(TOM_TIPS[i], i + 1);          // first 20 of the billion he knows
+  return flavorTip(TOM_TIPS[i]);
 }
-// Fool's Mate isn't in the random first-20 (it's a deeper cut #21), but Tom gives it exactly
-// when you ask for it by name.
+// Fool's Mate isn't in the main list, but Tom gives it exactly when you ask for it by name.
 const FOOLS_MATE_TIP = "Fool's Mate: if you push f3 then g4, Black plays Qh4 and it's checkmate in 2! Never make those two pawn moves. 🚫";
 // If you name a SPECIFIC trap or idea, Tom gives that exact tip instead of a random one.
-// Numbers map to the real tip: e.g. the fork tip is #7, Scholar's Mate #18, Fool's Mate #21.
 function topicTip(text) {
   const t = text.toLowerCase();
-  const numTip = (i) => { _lastTipIdx = i; return tipWithNumber(TOM_TIPS[i], i + 1); };
-  if (/fool'?s? ?mate|\bf3\b.*\bg4\b|\bg4\b.*\bf3\b/.test(t)) return tipWithNumber(FOOLS_MATE_TIP, 21);
-  if (/scholar'?s? ?mate|four[- ]?move mate|4[- ]?move mate/.test(t)) return numTip(17);
-  if (/\btraps?\b/.test(t)) return Math.random() < 0.5 ? tipWithNumber(FOOLS_MATE_TIP, 21) : numTip(17);
-  if (/\bforks?\b/.test(t)) return numTip(6);
-  if (/\bpins?\b/.test(t)) return numTip(7);
-  if (/\bskewers?\b/.test(t)) return numTip(8);
-  if (/castl/.test(t)) return numTip(2);
-  if (/back[- ]?rank/.test(t)) return numTip(11);
-  if (/passed pawns?/.test(t)) return numTip(16);
-  if (/\bcent(er|re)\b/.test(t)) return numTip(0);
-  if (/develop|knights? out|bishops? out/.test(t)) return numTip(1);
-  if (/piece values?|how much.*worth|\bpoints?\b/.test(t)) return numTip(12);
-  if (/end ?game/.test(t)) return numTip(15);
-  if (/\btrades?\b|trading/.test(t)) return numTip(13);
-  if (/open files?|rooks?/.test(t)) return numTip(14);
+  const one = (i) => { _lastTipIdx = i; return flavorTip(TOM_TIPS[i]); };
+  if (/fool'?s? ?mate|\bf3\b.*\bg4\b|\bg4\b.*\bf3\b/.test(t)) return flavorTip(FOOLS_MATE_TIP);
+  if (/scholar'?s? ?mate|four[- ]?move mate|4[- ]?move mate/.test(t)) return one(17);
+  if (/\btraps?\b/.test(t)) return Math.random() < 0.5 ? flavorTip(FOOLS_MATE_TIP) : one(17);
+  if (/\bforks?\b/.test(t)) return one(6);
+  if (/\bpins?\b/.test(t)) return one(7);
+  if (/\bskewers?\b/.test(t)) return one(8);
+  if (/castl/.test(t)) return one(2);
+  if (/back[- ]?rank/.test(t)) return one(11);
+  if (/passed pawns?/.test(t)) return one(16);
+  if (/\bcent(er|re)\b/.test(t)) return one(0);
+  if (/develop|knights? out|bishops? out/.test(t)) return one(1);
+  if (/piece values?|how much.*worth|\bpoints?\b/.test(t)) return one(12);
+  if (/end ?game/.test(t)) return one(15);
+  if (/\btrades?\b|trading/.test(t)) return one(13);
+  if (/open files?|rooks?/.test(t)) return one(14);
   return null;
 }
 // Tom is scripted (no real AI brain), but he reads what you typed and answers to it,
@@ -2048,7 +2044,7 @@ function tomSay(log, text) {
     if (re.test(text)) {
       if (out === '__PLAY__') { reply = 'You wanna play me? Tap ♟️ Play me up top! 🐐'; isPlay = true; }
       else if (out === '__TIP__') { reply = makeTip(); }
-      else if (out === '__BRAG__') { reply = 'I know 1 BILLION chess tips! 🐐👑 Here\'s one → ' + makeTip(); }
+      else if (out === '__BRAG__') { reply = 'I\'ve got lots of good chess tips! 🐐 Here\'s one → ' + makeTip(); }
       else reply = tomPick(out);
       break;
     }
