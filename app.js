@@ -252,6 +252,116 @@ const PUZZLES = [
   // Hard
   { fen: '8/8/8/8/8/5k2/q7/6K1 b - - 0 1', type: 'mate', level: 'hard', theme: 'Queen mate (you play Black)' },
   { fen: 'k6q/8/8/8/8/8/K7/4R3 w - - 0 1', type: 'tactic', level: 'hard', solution: 'e1e8', theme: 'Skewer' },
+  // --- 108 more puzzles across all 3 types (mate / tactic / endgame) and levels, each
+  // generated and verified to have a working one-move solution. ---
+  { fen: '8/8/8/8/Q7/7K/8/7k w - - 0 1', type: 'mate', level: 'easy', theme: 'Queen mate in 1' },
+  { fen: '8/8/8/5Q2/8/3K4/8/3k4 w - - 0 1', type: 'mate', level: 'easy', theme: 'Queen mate in 1' },
+  { fen: '8/8/8/8/8/7K/1Q6/7k w - - 0 1', type: 'mate', level: 'easy', theme: 'Queen mate in 1' },
+  { fen: '1k6/8/1K6/8/8/Q7/8/8 w - - 0 1', type: 'mate', level: 'easy', theme: 'Queen mate in 1' },
+  { fen: '8/8/8/8/8/8/8/k1K4Q w - - 0 1', type: 'mate', level: 'easy', theme: 'Queen mate in 1' },
+  { fen: '1k6/8/K7/8/8/8/6Q1/8 w - - 0 1', type: 'mate', level: 'easy', theme: 'Queen mate in 1' },
+  { fen: '3k4/Q7/3K4/8/8/8/8/8 w - - 0 1', type: 'mate', level: 'easy', theme: 'Queen mate in 1' },
+  { fen: '8/6Q1/8/8/8/5K2/7k/8 w - - 0 1', type: 'mate', level: 'easy', theme: 'Queen mate in 1' },
+  { fen: '1k6/8/K7/8/8/8/8/7Q w - - 0 1', type: 'mate', level: 'easy', theme: 'Queen mate in 1' },
+  { fen: '8/6Q1/8/8/8/5K2/8/5k2 w - - 0 1', type: 'mate', level: 'easy', theme: 'Queen mate in 1' },
+  { fen: '6k1/8/5K1Q/8/8/8/8/8 w - - 0 1', type: 'mate', level: 'easy', theme: 'Queen mate in 1' },
+  { fen: '2k5/8/1K6/8/4Q3/8/8/8 w - - 0 1', type: 'mate', level: 'easy', theme: 'Queen mate in 1' },
+  { fen: '8/2R5/K7/8/k7/6R1/8/8 w - - 0 1', type: 'mate', level: 'normal', theme: 'Two-rook mate' },
+  { fen: '7R/8/8/8/8/8/1R6/1K1k4 w - - 0 1', type: 'mate', level: 'normal', theme: 'Two-rook mate' },
+  { fen: '8/8/6R1/8/7R/1K6/8/k7 w - - 0 1', type: 'mate', level: 'normal', theme: 'Two-rook mate' },
+  { fen: 'R7/8/8/8/7R/4K3/8/4k3 w - - 0 1', type: 'mate', level: 'normal', theme: 'Two-rook mate' },
+  { fen: '6R1/8/8/k7/8/1R6/4K3/8 w - - 0 1', type: 'mate', level: 'normal', theme: 'Two-rook mate' },
+  { fen: '4R3/7k/8/7K/8/4R3/8/8 w - - 0 1', type: 'mate', level: 'normal', theme: 'Two-rook mate' },
+  { fen: '7k/8/3R4/1K6/6R1/8/8/8 w - - 0 1', type: 'mate', level: 'normal', theme: 'Two-rook mate' },
+  { fen: '8/8/6K1/2R5/6R1/8/7k/8 w - - 0 1', type: 'mate', level: 'normal', theme: 'Two-rook mate' },
+  { fen: '8/5K2/8/8/2R5/6R1/8/7k w - - 0 1', type: 'mate', level: 'normal', theme: 'Two-rook mate' },
+  { fen: 'k7/4R3/8/K7/6R1/8/8/8 w - - 0 1', type: 'mate', level: 'normal', theme: 'Two-rook mate' },
+  { fen: 'k7/8/8/8/1R6/4R3/1K6/8 w - - 0 1', type: 'mate', level: 'normal', theme: 'Two-rook mate' },
+  { fen: '8/8/8/8/6K1/5R2/4R3/k7 w - - 0 1', type: 'mate', level: 'normal', theme: 'Two-rook mate' },
+  { fen: '4K3/8/q4k2/8/8/8/8/8 b - - 0 1', type: 'mate', level: 'hard', theme: 'You play Black, mate in 1' },
+  { fen: '7K/8/7k/8/2q5/8/8/8 b - - 0 1', type: 'mate', level: 'hard', theme: 'You play Black, mate in 1' },
+  { fen: 'K7/8/1k6/5q2/8/8/8/8 b - - 0 1', type: 'mate', level: 'hard', theme: 'You play Black, mate in 1' },
+  { fen: '2K5/8/2k5/8/8/1q6/8/8 b - - 0 1', type: 'mate', level: 'hard', theme: 'You play Black, mate in 1' },
+  { fen: '3K4/8/4k3/8/8/1q6/8/8 b - - 0 1', type: 'mate', level: 'hard', theme: 'You play Black, mate in 1' },
+  { fen: '8/8/7q/8/8/k7/8/K7 b - - 0 1', type: 'mate', level: 'hard', theme: 'You play Black, mate in 1' },
+  { fen: '1K6/8/1k6/8/8/8/8/4q3 b - - 0 1', type: 'mate', level: 'hard', theme: 'You play Black, mate in 1' },
+  { fen: '1K6/8/k4q2/8/8/8/8/8 b - - 0 1', type: 'mate', level: 'hard', theme: 'You play Black, mate in 1' },
+  { fen: '7K/8/6k1/8/5q2/8/8/8 b - - 0 1', type: 'mate', level: 'hard', theme: 'You play Black, mate in 1' },
+  { fen: '8/8/8/6q1/8/5k2/8/7K b - - 0 1', type: 'mate', level: 'hard', theme: 'You play Black, mate in 1' },
+  { fen: '1K6/8/1k6/8/6q1/8/8/8 b - - 0 1', type: 'mate', level: 'hard', theme: 'You play Black, mate in 1' },
+  { fen: 'K7/2k5/8/8/2q5/8/8/8 b - - 0 1', type: 'mate', level: 'hard', theme: 'You play Black, mate in 1' },
+  { fen: '6q1/4N3/2K5/8/8/8/2k5/8 w - - 0 1', type: 'tactic', level: 'easy', solution: 'e7g8', theme: 'Win the queen' },
+  { fen: '8/8/8/1k2K3/8/8/2Q5/3q4 w - - 0 1', type: 'tactic', level: 'easy', solution: 'c2d1', theme: 'Win the queen' },
+  { fen: '8/8/7B/8/8/5K1k/8/2q5 w - - 0 1', type: 'tactic', level: 'easy', solution: 'h6c1', theme: 'Win the queen' },
+  { fen: '4Qq2/3K4/1k6/8/8/8/8/8 w - - 0 1', type: 'tactic', level: 'easy', solution: 'e8f8', theme: 'Win the queen' },
+  { fen: '8/6K1/2k5/8/8/8/4q3/3Q4 w - - 0 1', type: 'tactic', level: 'easy', solution: 'd1e2', theme: 'Win the queen' },
+  { fen: '6k1/8/2Q5/8/4q3/7K/8/8 w - - 0 1', type: 'tactic', level: 'easy', solution: 'c6e4', theme: 'Win the queen' },
+  { fen: '2K5/8/8/8/3q3Q/8/2k5/8 w - - 0 1', type: 'tactic', level: 'easy', solution: 'h4d4', theme: 'Win the queen' },
+  { fen: '8/3k4/K7/8/8/8/8/6qQ w - - 0 1', type: 'tactic', level: 'easy', solution: 'h1g1', theme: 'Win the queen' },
+  { fen: '8/6q1/7Q/8/k7/3K4/8/8 w - - 0 1', type: 'tactic', level: 'easy', solution: 'h6g7', theme: 'Win the queen' },
+  { fen: '1K6/3k4/8/8/4q3/6N1/8/8 w - - 0 1', type: 'tactic', level: 'easy', solution: 'g3e4', theme: 'Win the queen' },
+  { fen: 'Q7/8/8/3q4/7K/1k6/8/8 w - - 0 1', type: 'tactic', level: 'easy', solution: 'a8d5', theme: 'Win the queen' },
+  { fen: '1k6/8/8/8/8/2R1q3/8/5K2 w - - 0 1', type: 'tactic', level: 'easy', solution: 'c3e3', theme: 'Win the queen' },
+  { fen: '8/8/2R1r3/8/8/8/8/2K3k1 w - - 0 1', type: 'tactic', level: 'normal', solution: 'c6e6', theme: 'Win the rook' },
+  { fen: '7K/8/8/4r3/8/8/k6B/8 w - - 0 1', type: 'tactic', level: 'normal', solution: 'h2e5', theme: 'Win the rook' },
+  { fen: '8/8/4k1r1/6R1/8/8/8/3K4 w - - 0 1', type: 'tactic', level: 'normal', solution: 'g5g6', theme: 'Win the rook' },
+  { fen: '8/8/K7/4B3/8/4k3/7r/8 w - - 0 1', type: 'tactic', level: 'normal', solution: 'e5h2', theme: 'Win the rook' },
+  { fen: '8/5r2/5R2/8/8/8/8/4k2K w - - 0 1', type: 'tactic', level: 'normal', solution: 'f6f7', theme: 'Win the rook' },
+  { fen: '8/2K5/8/3r4/8/1k3B2/8/8 w - - 0 1', type: 'tactic', level: 'normal', solution: 'f3d5', theme: 'Win the rook' },
+  { fen: '8/5K2/2k5/8/2r5/2R5/8/8 w - - 0 1', type: 'tactic', level: 'normal', solution: 'c3c4', theme: 'Win the rook' },
+  { fen: '8/4k3/6r1/8/5N2/7K/8/8 w - - 0 1', type: 'tactic', level: 'normal', solution: 'f4g6', theme: 'Win the rook' },
+  { fen: '8/4r3/5B2/8/1K6/8/3k4/8 w - - 0 1', type: 'tactic', level: 'normal', solution: 'f6e7', theme: 'Win the rook' },
+  { fen: '8/1k6/4r3/8/4R3/7K/8/8 w - - 0 1', type: 'tactic', level: 'normal', solution: 'e4e6', theme: 'Win the rook' },
+  { fen: '4k3/1r6/8/8/8/8/6B1/5K2 w - - 0 1', type: 'tactic', level: 'normal', solution: 'g2b7', theme: 'Win the rook' },
+  { fen: '8/8/1Rr5/8/8/7K/8/k7 w - - 0 1', type: 'tactic', level: 'normal', solution: 'b6c6', theme: 'Win the rook' },
+  { fen: 'N7/8/8/1q1k4/8/8/8/2K5 w - - 0 1', type: 'tactic', level: 'hard', solution: 'a8c7', theme: 'Knight fork!' },
+  { fen: '8/2K5/8/8/8/3k1q2/6N1/8 w - - 0 1', type: 'tactic', level: 'hard', solution: 'g2e1', theme: 'Knight fork!' },
+  { fen: '6q1/8/6k1/1K1N4/8/8/8/8 w - - 0 1', type: 'tactic', level: 'hard', solution: 'd5e7', theme: 'Knight fork!' },
+  { fen: '3q4/N5K1/8/k7/8/8/8/8 w - - 0 1', type: 'tactic', level: 'hard', solution: 'a7c6', theme: 'Knight fork!' },
+  { fen: '8/6k1/8/8/3q3N/8/8/2K5 w - - 0 1', type: 'tactic', level: 'hard', solution: 'h4f5', theme: 'Knight fork!' },
+  { fen: '8/8/8/7K/3k4/4N3/8/4q3 w - - 0 1', type: 'tactic', level: 'hard', solution: 'e3c2', theme: 'Knight fork!' },
+  { fen: '2q3k1/8/6NK/8/8/8/8/8 w - - 0 1', type: 'tactic', level: 'hard', solution: 'g6e7', theme: 'Knight fork!' },
+  { fen: '6q1/5N2/8/1K6/6k1/8/8/8 w - - 0 1', type: 'tactic', level: 'hard', solution: 'f7h6', theme: 'Knight fork!' },
+  { fen: '8/5k2/2q1N3/8/8/6K1/8/8 w - - 0 1', type: 'tactic', level: 'hard', solution: 'e6d8', theme: 'Knight fork!' },
+  { fen: '8/8/2N5/7K/8/8/k1q5/8 w - - 0 1', type: 'tactic', level: 'hard', solution: 'c6b4', theme: 'Knight fork!' },
+  { fen: '8/8/8/2k5/5q2/8/5N2/1K6 w - - 0 1', type: 'tactic', level: 'hard', solution: 'f2d3', theme: 'Knight fork!' },
+  { fen: '8/8/8/8/2N1q3/1K6/8/5k2 w - - 0 1', type: 'tactic', level: 'hard', solution: 'c4d2', theme: 'Knight fork!' },
+  { fen: '8/4KP2/8/8/8/8/8/7k w - - 0 1', type: 'endgame', level: 'easy', solution: 'f7f8q', theme: 'Promote to a queen!' },
+  { fen: '8/3KP3/8/8/8/k7/8/8 w - - 0 1', type: 'endgame', level: 'easy', solution: 'e7e8q', theme: 'Promote to a queen!' },
+  { fen: '8/7P/8/8/4K3/8/6k1/8 w - - 0 1', type: 'endgame', level: 'easy', solution: 'h7h8q', theme: 'Promote to a queen!' },
+  { fen: 'K7/3P4/8/k7/8/8/8/8 w - - 0 1', type: 'endgame', level: 'easy', solution: 'd7d8q', theme: 'Promote to a queen!' },
+  { fen: '5k2/7P/8/8/8/8/2K5/8 w - - 0 1', type: 'endgame', level: 'easy', solution: 'h7h8q', theme: 'Promote to a queen!' },
+  { fen: '6K1/7P/8/8/8/5k2/8/8 w - - 0 1', type: 'endgame', level: 'easy', solution: 'h7h8q', theme: 'Promote to a queen!' },
+  { fen: '8/5P2/3K4/8/8/8/1k6/8 w - - 0 1', type: 'endgame', level: 'easy', solution: 'f7f8q', theme: 'Promote to a queen!' },
+  { fen: '8/5P2/8/3k4/8/8/5K2/8 w - - 0 1', type: 'endgame', level: 'easy', solution: 'f7f8q', theme: 'Promote to a queen!' },
+  { fen: '8/3P4/8/8/8/7K/8/1k6 w - - 0 1', type: 'endgame', level: 'easy', solution: 'd7d8q', theme: 'Promote to a queen!' },
+  { fen: '8/1kP5/8/8/8/8/7K/8 w - - 0 1', type: 'endgame', level: 'easy', solution: 'c7c8q', theme: 'Promote to a queen!' },
+  { fen: '8/4P3/8/8/4k3/8/8/1K6 w - - 0 1', type: 'endgame', level: 'easy', solution: 'e7e8q', theme: 'Promote to a queen!' },
+  { fen: '8/6P1/8/2K5/5k2/8/8/8 w - - 0 1', type: 'endgame', level: 'easy', solution: 'g7g8q', theme: 'Promote to a queen!' },
+  { fen: '8/4P1k1/8/5K2/8/8/8/8 w - - 0 1', type: 'endgame', level: 'easy', solution: 'e7e8q', theme: 'Promote to a queen!' },
+  { fen: '6K1/2P5/8/8/8/3k4/8/8 w - - 0 1', type: 'endgame', level: 'easy', solution: 'c7c8q', theme: 'Promote to a queen!' },
+  { fen: 'r7/1P6/8/4K3/8/8/k7/8 w - - 0 1', type: 'endgame', level: 'normal', solution: 'b7a8q', theme: 'Capture and promote!' },
+  { fen: '5r2/4P3/k7/8/8/7K/8/8 w - - 0 1', type: 'endgame', level: 'normal', solution: 'e7f8q', theme: 'Capture and promote!' },
+  { fen: '6r1/5P2/8/K7/8/8/8/2k5 w - - 0 1', type: 'endgame', level: 'normal', solution: 'f7g8q', theme: 'Capture and promote!' },
+  { fen: '4r3/4kP2/1K6/8/8/8/8/8 w - - 0 1', type: 'endgame', level: 'normal', solution: 'f7e8q', theme: 'Capture and promote!' },
+  { fen: '2r5/1P6/8/8/8/8/K7/3k4 w - - 0 1', type: 'endgame', level: 'normal', solution: 'b7c8q', theme: 'Capture and promote!' },
+  { fen: '3r4/2P5/8/8/8/5k2/8/7K w - - 0 1', type: 'endgame', level: 'normal', solution: 'c7d8q', theme: 'Capture and promote!' },
+  { fen: '1k3r2/6P1/3K4/8/8/8/8/8 w - - 0 1', type: 'endgame', level: 'normal', solution: 'g7f8q', theme: 'Capture and promote!' },
+  { fen: '5r2/6P1/8/4K3/8/8/8/6k1 w - - 0 1', type: 'endgame', level: 'normal', solution: 'g7f8q', theme: 'Capture and promote!' },
+  { fen: '6r1/5K1P/8/8/7k/8/8/8 w - - 0 1', type: 'endgame', level: 'normal', solution: 'h7g8q', theme: 'Capture and promote!' },
+  { fen: '5r2/4P3/8/8/8/8/7k/K7 w - - 0 1', type: 'endgame', level: 'normal', solution: 'e7f8q', theme: 'Capture and promote!' },
+  { fen: '7r/1k4P1/8/8/1K6/8/8/8 w - - 0 1', type: 'endgame', level: 'normal', solution: 'g7h8q', theme: 'Capture and promote!' },
+  { fen: '6r1/5P2/8/8/7k/8/8/K7 w - - 0 1', type: 'endgame', level: 'normal', solution: 'f7g8q', theme: 'Capture and promote!' },
+  { fen: '8/5P2/8/8/8/3K4/7k/8 w - - 0 1', type: 'endgame', level: 'hard', solution: 'f7f8q', theme: 'Queen it to win' },
+  { fen: '8/4P3/1K6/8/k7/8/8/8 w - - 0 1', type: 'endgame', level: 'hard', solution: 'e7e8q', theme: 'Queen it to win' },
+  { fen: '8/1K2P3/8/8/7k/8/8/8 w - - 0 1', type: 'endgame', level: 'hard', solution: 'e7e8q', theme: 'Queen it to win' },
+  { fen: '5K2/1P6/8/8/8/8/4k3/8 w - - 0 1', type: 'endgame', level: 'hard', solution: 'b7b8q', theme: 'Queen it to win' },
+  { fen: '8/5P2/K7/8/8/8/3k4/8 w - - 0 1', type: 'endgame', level: 'hard', solution: 'f7f8q', theme: 'Queen it to win' },
+  { fen: '8/3P4/7K/8/8/6k1/8/8 w - - 0 1', type: 'endgame', level: 'hard', solution: 'd7d8q', theme: 'Queen it to win' },
+  { fen: '8/1P6/1k6/8/8/8/8/K7 w - - 0 1', type: 'endgame', level: 'hard', solution: 'b7b8q', theme: 'Queen it to win' },
+  { fen: '8/3P3K/8/8/6k1/8/8/8 w - - 0 1', type: 'endgame', level: 'hard', solution: 'd7d8q', theme: 'Queen it to win' },
+  { fen: '8/2K1Pk2/8/8/8/8/8/8 w - - 0 1', type: 'endgame', level: 'hard', solution: 'e7e8q', theme: 'Queen it to win' },
+  { fen: '4k3/6P1/8/8/8/8/5K2/8 w - - 0 1', type: 'endgame', level: 'hard', solution: 'g7g8q', theme: 'Queen it to win' },
 ];
 
 // ---- Daily-limit tracking (per day, per user) ----
@@ -1699,10 +1809,11 @@ function wireEvents() {
   document.querySelectorAll('#puzzle-difficulty .pdiff-btn').forEach(b => {
     b.onclick = () => { game.puzzleLevel = b.dataset.plevel; loadRandomPuzzle(); };
   });
-  // Puzzle type chooser: Mate or Tactics.
+  // Puzzle type chooser: Mate, Tactics, or Endgame.
   $('puzzle-type-close').onclick = () => $('puzzle-type-modal').classList.add('hidden');
   $('ptype-mate').onclick = () => startPuzzles('mate');
   $('ptype-tactic').onclick = () => startPuzzles('tactic');
+  $('ptype-endgame').onclick = () => startPuzzles('endgame');
 
   // packs
   $('packs-close').onclick = () => $('packs-modal').classList.add('hidden');
@@ -2428,8 +2539,8 @@ function loadRandomPuzzle() {
   showScreen('game');
   render();
   const left = isMember() ? '∞' : (FREE_PUZZLES_PER_DAY - dailyCounts().puzzles);
-  // Say the TYPE up front — a Tactic or a Mate — so you know what to look for.
-  const kind = p.type === 'mate' ? '♚ Mate' : '⚔️ Tactic';
+  // Say the TYPE up front — Mate, Tactic, or Endgame — so you know what to look for.
+  const kind = p.type === 'mate' ? '♚ Mate' : p.type === 'endgame' ? '👑 Endgame' : '⚔️ Tactic';
   const side = game.state.turn === 'w' ? 'White' : 'Black';
   $('status-bar').textContent = `${kind} — ${side} to move, find it!  (left: ${left})`;
   $('status-bar').classList.remove('check');
