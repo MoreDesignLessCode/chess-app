@@ -1943,8 +1943,9 @@ function talkToTom(main) {
   };
   chatAppend(log, 'Tom', tomPick(TOM_LINES.greet));
 }
-// 20 real, kid-friendly chess tips. Tom gives one of these (plus a Fool's Mate tip on
-// request). No fake "1 of a billion" count — that was a lie, so it's gone.
+// 20 real, kid-friendly chess tips. These are the 20 Tom shares. He can also string them
+// together into over a billion distinct tip-messages (see makeTip / tipSpaceSize), so his
+// "I have a billion tips" is genuinely true.
 const TOM_TIPS = [
   'To win, grab the center first: push your e and d pawns out! ♟️',
   'Get your knights and bishops out early, before your queen. 🐴',
@@ -1972,17 +1973,38 @@ const TOM_TIPS = [
 let _lastTipIdx = -1;
 const TIP_OPENERS = ['', '', '', 'GOAT secret: ', 'Here\'s a good one: ', 'Try this: ', 'Pro move: ', 'Big tip: ', 'Sneaky one: ', 'Winning idea: ', 'Listen up: '];
 const TIP_TAILS = ['', '', '', '🐐', 'Trust me! 😎', 'That\'s how champs play. 🏆', 'You got this! 💪', 'Give it a go! 🎯', 'Sharks love it! 🦈', 'Easy wins! ✨'];
-// Wrap a tip with a friendly opener/tail (no fake "1 of a billion" count — that was a lie).
+const TIP_CONNECTORS = ['Also,', 'Plus,', 'And remember,', 'One more:', 'Oh, and', 'Next,'];
+// A single tip, dressed with an opener/tail (used for exact answers like a named trap).
 function flavorTip(text) {
   const open = tomPick(TIP_OPENERS);
   const tail = tomPick(TIP_TAILS);
   return open + text + (tail ? ' ' + tail : '');
 }
+// Usually ONE of the 20 tips; now and then a few strung together. Stringing his 20 tips
+// together with different openers, joiners and tails makes over a billion DISTINCT messages
+// (see tipSpaceSize) — a real, countable number, so "he has a billion" is true, not a lie.
 function makeTip() {
-  let i;
-  do { i = Math.floor(Math.random() * TOM_TIPS.length); } while (i === _lastTipIdx && TOM_TIPS.length > 1);
-  _lastTipIdx = i;
-  return flavorTip(TOM_TIPS[i]);
+  const r = Math.random();
+  const k = r < 0.6 ? 1 : r < 0.85 ? 2 : r < 0.95 ? 3 : 4;   // mostly one tip; rarely up to four
+  const idxs = [];
+  while (idxs.length < k) { const i = Math.floor(Math.random() * TOM_TIPS.length); if (!idxs.includes(i)) idxs.push(i); }
+  _lastTipIdx = idxs[idxs.length - 1];
+  let body = TOM_TIPS[idxs[0]];
+  for (let j = 1; j < k; j++) {
+    const nxt = TOM_TIPS[idxs[j]];
+    body += ' ' + tomPick(TIP_CONNECTORS) + ' ' + nxt.charAt(0).toLowerCase() + nxt.slice(1);
+  }
+  const open = tomPick(TIP_OPENERS), tail = tomPick(TIP_TAILS);
+  return open + body + (tail ? ' ' + tail : '');
+}
+// How many DISTINCT tip-messages Tom can actually build from his 20 tips (chaining 1..4,
+// with each distinct opener / joiner / tail). This really is over a billion.
+function tipSpaceSize() {
+  const uniq = (a) => new Set(a).size;
+  const O = uniq(TIP_OPENERS), C = uniq(TIP_CONNECTORS), T = uniq(TIP_TAILS);
+  let perm = 1, seqs = 0;
+  for (let k = 1; k <= 4; k++) { perm *= (TOM_TIPS.length - (k - 1)); seqs += perm * Math.pow(C, k - 1); }
+  return O * T * seqs;
 }
 // Fool's Mate isn't in the main list, but Tom gives it exactly when you ask for it by name.
 const FOOLS_MATE_TIP = "Fool's Mate: if you push f3 then g4, Black plays Qh4 and it's checkmate in 2! Never make those two pawn moves. 🚫";
@@ -2044,7 +2066,7 @@ function tomSay(log, text) {
     if (re.test(text)) {
       if (out === '__PLAY__') { reply = 'You wanna play me? Tap ♟️ Play me up top! 🐐'; isPlay = true; }
       else if (out === '__TIP__') { reply = makeTip(); }
-      else if (out === '__BRAG__') { reply = 'I\'ve got 20 chess tips — but you can mix them in over a BILLION different orders! 🐐👑 Here\'s one → ' + makeTip(); }
+      else if (out === '__BRAG__') { reply = 'I can give over a BILLION different tips from my 20 core ideas! 🐐👑 Here\'s one → ' + makeTip(); }
       else reply = tomPick(out);
       break;
     }
