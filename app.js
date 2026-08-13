@@ -303,7 +303,7 @@ function updateStreak() {
     if ((s.pauses || 0) >= missed) {
       s.pauses -= missed; s.streak++; event = 'paused'; // pauses cover the gap
     } else {
-      s.streak = 1; s.awardedAt = 0; event = 'reset';    // streak broke
+      s.pauses = 0; s.streak++; event = null;             // never reset — the streak keeps going
     }
   }
   // Earn 2 pauses each new 10-day milestone.
