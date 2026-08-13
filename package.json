@@ -28,6 +28,8 @@
       "engine.js",
       "worker.js",
       "sf.js",
+      "music.js",
+      "puzzles.js",
       "vendor/**"
     ],
     "mac": {
