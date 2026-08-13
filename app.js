@@ -472,8 +472,9 @@ function memberTier() {
   if (isSilver()) return 'silver';
   return hasContact() ? 'bronze' : 'free';
 }
-// A paid tier is active while it hasn't expired (a "forever" plan never expires).
-function paidActive(rec) { return rec && (rec.silverUntil == null || Date.now() <= rec.silverUntil); }
+// Once you're a member, you stay a member. No expiry — your tier never resets, not after
+// a year, not after two. (Even an old record with a past date is kept active.)
+function paidActive(rec) { return !!rec; }
 // Gold is the top paid tier (adds Tom + chat on top of everything Silver has).
 function isGold() {
   const u = currentUser();
@@ -490,10 +491,7 @@ function isSilver() {
 }
 function memberPlan() { const u = currentUser(); if (!u) return null; const m = loadMembers(); return (m[u] && m[u].plan) || null; }
 function silverDaysLeft() {
-  const u = currentUser();
-  const rec = u && loadMembers()[u];
-  if (!rec || rec.silverUntil == null) return null; // no expiry (forever) or not silver
-  return Math.max(0, Math.ceil((rec.silverUntil - Date.now()) / 86400000));
+  return null; // memberships never expire, so there is no countdown
 }
 function tierLabel() { const t = memberTier(); return t === 'gold' ? 'Gold' : t === 'silver' ? 'Silver' : t === 'bronze' ? 'Bronze' : 'Free'; }
 function tierMedal() { const t = memberTier(); return t === 'gold' ? '\u{1F947}' : t === 'silver' ? '\u{1F948}' : t === 'bronze' ? '\u{1F949}' : '\u{1F193}'; } // 🥇 / 🥈 / 🥉 / 🆓
@@ -2553,10 +2551,8 @@ function silverGrant(plan) {
   const gold = plan.startsWith('gold-');
   m[u].tier = gold ? 'gold' : 'silver';
   m[u].plan = plan;
-  if (plan === 'life' || plan === 'gold-life') m[u].silverUntil = null;           // never expires
-  else if (plan === 'year' || plan === 'gold-year') m[u].silverUntil = Date.now() + 365 * DAY;
-  else if (plan === 'demo' || plan === 'gold-demo') { m[u].silverUntil = Date.now() + 60 * DAY; m[u].demoUsed = true; }   // 2-month trial
-  else if (plan === 'special' || plan === 'gold-special') { m[u].silverUntil = Date.now() + 7 * DAY; m[u].demoUsed = true; } // 1-week
+  m[u].silverUntil = null;                 // membership never expires, whatever the plan
+  if (plan === 'demo' || plan === 'gold-demo' || plan === 'special' || plan === 'gold-special') m[u].demoUsed = true; // a trial can still only be taken once
   saveMembers(m);
   renderMembership();
   refreshPacks();
