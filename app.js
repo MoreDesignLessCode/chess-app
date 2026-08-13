@@ -2044,7 +2044,7 @@ function tomSay(log, text) {
     if (re.test(text)) {
       if (out === '__PLAY__') { reply = 'You wanna play me? Tap ♟️ Play me up top! 🐐'; isPlay = true; }
       else if (out === '__TIP__') { reply = makeTip(); }
-      else if (out === '__BRAG__') { reply = 'I\'ve got lots of good chess tips! 🐐 Here\'s one → ' + makeTip(); }
+      else if (out === '__BRAG__') { reply = 'I\'ve got 20 chess tips — but you can mix them in over a BILLION different orders! 🐐👑 Here\'s one → ' + makeTip(); }
       else reply = tomPick(out);
       break;
     }
