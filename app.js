@@ -456,7 +456,11 @@ function setSession(user) { localStorage.setItem(SESSION_KEY, user); localStorag
 // On startup, if the session was lost but the account still exists, bring it back — so your
 // membership does NOT drop to Free on restart. An explicit Sign out clears this, so it sticks.
 function restoreSession() {
-  if (currentUser()) return;
+  const cur = currentUser();
+  if (cur) {                                                    // already signed in
+    if (!localStorage.getItem(LASTUSER_KEY)) localStorage.setItem(LASTUSER_KEY, cur); // remember for next time
+    return;
+  }
   const last = localStorage.getItem(LASTUSER_KEY);
   if (last && loadMembers()[last]) localStorage.setItem(SESSION_KEY, last);
 }
