@@ -1254,14 +1254,14 @@ function runAnalysis(opts) {
   });
 }
 
-// Format an eval (white's perspective) for display. Shows the engine's EXACT centipawn
-// count (an integer), not a rounded pawn decimal, so it's never a little off.
+// Format a centipawn value (white's perspective) for display.
 function fmtEval(cpWhite) {
   if (Math.abs(cpWhite) >= 90000) {
     const movesTo = Math.round((100000 - Math.abs(cpWhite)) / 100);
     return (cpWhite > 0 ? '+M' : '-M') + (movesTo || '');
   }
-  return (cpWhite >= 0 ? '+' : '') + cpWhite + ' cp'; // exact centipawns, e.g. "+13 cp"
+  const pawns = cpWhite / 100;
+  return (pawns >= 0 ? '+' : '') + pawns.toFixed(2);
 }
 
 function renderAnalysis(result, analyzedState) {
@@ -1470,15 +1470,17 @@ function classifyPly(i, evals) {
   // Hung a whole piece for nothing → a Blunder (a catastrophic loss → Fatal Blunder).
   if (netSac >= 300) return cpLoss >= 1000 ? 'shame' : 'blunder';
 
-  // The loss ladder (centipawns; 100 cp = 1 pawn):
-  if (cpLoss <= 5)    return 'excellent';   // ≤ 0.05
-  if (cpLoss <= 10)   return 'good';        // ≤ 0.10
-  if (cpLoss <= 20)   return 'okay';        // ≤ 0.20
-  if (cpLoss <= 30)   return 'interesting'; // ≤ 0.30
-  if (cpLoss <= 50)   return 'dubious';     // ≤ 0.50  (Inaccuracy)
-  if (cpLoss <= 100)  return 'mistake';     // ≤ 1
-  if (cpLoss < 1000)  return 'blunder';     // < 10 pawns  (you were worse before)
-  return 'shame';                           // ≥ 10 pawns  → Fatal Blunder (equal-or-better into mate = 10 → Fatal)
+  // The loss ladder (exact centipawns; 100 cp = 1 pawn). Each number is the MINIMUM loss
+  // for that grade, so e.g. a 0.87-pawn (87 cp) slip is an Inaccuracy, never a Mistake —
+  // a Mistake needs a full pawn (100 cp) minimum.
+  if (cpLoss < 10)    return 'excellent';   // < 0.10  (Very Good)
+  if (cpLoss < 20)    return 'good';        // 0.10–0.19
+  if (cpLoss < 30)    return 'okay';        // 0.20–0.29
+  if (cpLoss < 50)    return 'interesting'; // 0.30–0.49
+  if (cpLoss < 100)   return 'dubious';     // 0.50–0.99  (Inaccuracy)
+  if (cpLoss < 200)   return 'mistake';     // 1.00–1.99  (Mistake — 1 pawn minimum)
+  if (cpLoss < 1000)  return 'blunder';     // 2.00–9.99
+  return 'shame';                           // ≥ 10.00  (Fatal Blunder)
 }
 
 function renderReviewSummary() {
