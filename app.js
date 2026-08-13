@@ -1975,14 +1975,41 @@ const TOM_TIPS = [
 let _lastTipIdx = -1;
 const TIP_OPENERS = ['', '', '', 'GOAT secret: ', 'Here\'s a good one: ', 'Try this: ', 'Pro move: ', 'Big tip: ', 'Sneaky one: ', 'Winning idea: ', 'Listen up: '];
 const TIP_TAILS = ['', '', '', '🐐', 'Trust me! 😎', 'That\'s how champs play. 🏆', 'You got this! 💪', 'Give it a go! 🎯', 'Sharks love it! 🦈', 'Easy wins! ✨'];
+function tipWithNumber(text, n) {                    // wrap a specific tip with the usual flavor + number
+  const open = tomPick(TIP_OPENERS);
+  const tail = tomPick(TIP_TAILS);
+  return 'Tip #' + n + ' of 1,000,000,000 → ' + open + text + (tail ? ' ' + tail : '');
+}
 function makeTip() {
   let i;
   do { i = Math.floor(Math.random() * TOM_TIPS.length); } while (i === _lastTipIdx && TOM_TIPS.length > 1);
   _lastTipIdx = i;
-  const open = tomPick(TIP_OPENERS);
-  const tail = tomPick(TIP_TAILS);
-  const body = open + TOM_TIPS[i] + (tail ? ' ' + tail : '');
-  return 'Tip #' + (i + 1) + ' of 1,000,000,000 → ' + body;   // first 20 of the billion he knows
+  return tipWithNumber(TOM_TIPS[i], i + 1);          // first 20 of the billion he knows
+}
+// Fool's Mate isn't in the random first-20 (it's a deeper cut #21), but Tom gives it exactly
+// when you ask for it by name.
+const FOOLS_MATE_TIP = "Fool's Mate: if you push f3 then g4, Black plays Qh4 and it's checkmate in 2! Never make those two pawn moves. 🚫";
+// If you name a SPECIFIC trap or idea, Tom gives that exact tip instead of a random one.
+// Numbers map to the real tip: e.g. the fork tip is #7, Scholar's Mate #18, Fool's Mate #21.
+function topicTip(text) {
+  const t = text.toLowerCase();
+  const numTip = (i) => { _lastTipIdx = i; return tipWithNumber(TOM_TIPS[i], i + 1); };
+  if (/fool'?s? ?mate|\bf3\b.*\bg4\b|\bg4\b.*\bf3\b/.test(t)) return tipWithNumber(FOOLS_MATE_TIP, 21);
+  if (/scholar'?s? ?mate|four[- ]?move mate|4[- ]?move mate/.test(t)) return numTip(17);
+  if (/\btraps?\b/.test(t)) return Math.random() < 0.5 ? tipWithNumber(FOOLS_MATE_TIP, 21) : numTip(17);
+  if (/\bforks?\b/.test(t)) return numTip(6);
+  if (/\bpins?\b/.test(t)) return numTip(7);
+  if (/\bskewers?\b/.test(t)) return numTip(8);
+  if (/castl/.test(t)) return numTip(2);
+  if (/back[- ]?rank/.test(t)) return numTip(11);
+  if (/passed pawns?/.test(t)) return numTip(16);
+  if (/\bcent(er|re)\b/.test(t)) return numTip(0);
+  if (/develop|knights? out|bishops? out/.test(t)) return numTip(1);
+  if (/piece values?|how much.*worth|\bpoints?\b/.test(t)) return numTip(12);
+  if (/end ?game/.test(t)) return numTip(15);
+  if (/\btrades?\b|trading/.test(t)) return numTip(13);
+  if (/open files?|rooks?/.test(t)) return numTip(14);
+  return null;
 }
 // Tom is scripted (no real AI brain), but he reads what you typed and answers to it,
 // so it feels like a real chat. Each rule: [words to look for, what Tom replies].
@@ -2012,6 +2039,10 @@ const TOM_RULES = [
 ];
 function tomSay(log, text) {
   chatAppend(log, 'You', text);
+  // Naming a specific trap or idea (Fool's Mate, fork, castle...) wins over everything else,
+  // so you get that EXACT tip instead of a random one or a play offer.
+  const exact = topicTip(text);
+  if (exact != null) { setTimeout(() => chatAppend(log, 'Tom', exact), 500); return; }
   let reply = null, isPlay = false;
   for (const [re, out] of TOM_RULES) {
     if (re.test(text)) {
