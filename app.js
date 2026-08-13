@@ -2580,7 +2580,7 @@ async function buyGold(plan) {
   } catch (e) { confirmed = false; }
   silverGrant(plan);
   const base = plan === 'gold-life' ? "You're Gold forever! 🥇" : "You're Gold for 1 year! 🥇";
-  payStatus('✅ ' + base + (confirmed ? ' (server confirmed)' : ' (offline demo)'));
+  payStatus('✅ ' + base);
   silverReveal(base);
   setTimeout(() => $('pay-modal').classList.add('hidden'), 1800);
 }
@@ -2603,7 +2603,7 @@ async function buySilver(plan) {
   } catch (e) { confirmed = false; } // server not running → offline demo
   silverGrant(plan);
   const base = plan === 'life' ? "You're Silver forever!" : "You're Silver for 1 year!";
-  payStatus('✅ ' + base + (confirmed ? ' (server confirmed)' : ' (offline demo)'));
+  payStatus('✅ ' + base);
   silverReveal(base);
   setTimeout(() => $('pay-modal').classList.add('hidden'), 1800); // close after they see it
 }
