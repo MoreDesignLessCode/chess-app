@@ -2020,6 +2020,50 @@ function topicTip(text) {
   if (/open files?|rooks?/.test(t)) return one(14);
   return null;
 }
+// Tom can chat about NON-chess stuff too — animals, food, fun things — so he's not a
+// one-track chess robot. First match wins; returns null if it's not one of these topics.
+function topicChat(text) {
+  const t = text.toLowerCase();
+  if (/\bgoats?\b/.test(t)) return 'Goats are awesome, and I\'M the GOAT! 🐐 (Greatest Of All Time!)';
+  if (/gorillas?/.test(t)) return 'Gorillas are SUPER strong! 🦍 But one could never beat me at chess. 😎';
+  if (/lions?/.test(t)) return 'Lions rule the jungle 🦁, and I rule the chessboard! 👑';
+  if (/tigers?/.test(t)) return 'Tigers are fast and fierce! 🐯 Rawr!';
+  if (/\bdogs?\b|puppy|puppies|doggo/.test(t)) return 'Dogs are the best! 🐶 Woof woof!';
+  if (/\bcats?\b|kitten|kitty/.test(t)) return 'Cats are sneaky, just like a surprise checkmate! 🐱';
+  if (/dinosaur|dino|t-?rex|raptor/.test(t)) return 'RAWR! 🦖 Dinosaurs are the coolest!';
+  if (/dolphins?|whales?|octopus|turtles?/.test(t)) return 'Ocean animals rule! I\'m a shark, don\'t forget. 🦈';
+  if (/monkey|chimp|ape\b/.test(t)) return 'Monkeys are so silly and fun! 🐵';
+  if (/horses?|pony|ponies/.test(t)) return 'Horses are cool, the knight even jumps like a horse! 🐴';
+  if (/snakes?/.test(t)) return 'Snakes are so slithery! 🐍 Ssssss!';
+  if (/elephants?/.test(t)) return 'Elephants are HUGE and super smart! 🐘';
+  if (/penguins?/.test(t)) return 'Penguins are the cutest little waddlers! 🐧';
+  if (/unicorns?/.test(t)) return 'Unicorns are magical! 🦄✨';
+  if (/eagles?|hawks?|\bbirds?\b|parrots?/.test(t)) return 'Birds can fly, how cool is that? 🦅';
+  if (/bears?|panda/.test(t)) return 'Bears are big and strong! 🐻';
+  if (/\bfrogs?\b/.test(t)) return 'Frogs go ribbit and hop everywhere! 🐸';
+  if (/rabbits?|bunny|bunnies/.test(t)) return 'Bunnies are so cute and hoppy! 🐰';
+  if (/\bfoxe?s?\b/.test(t)) return 'Foxes are clever and sneaky! 🦊';
+  if (/pizza/.test(t)) return 'Pizza is the BEST food ever! 🍕 What toppings do you like?';
+  if (/ice ?cream/.test(t)) return 'Ice cream! 🍦 Yum! What flavor?';
+  if (/candy|chocolate|sweets|cookie/.test(t)) return 'Sweet treats! 🍫 So good!';
+  if (/burgers?|fries|hot ?dog/.test(t)) return 'Burgers and fries, yum! 🍔🍟';
+  if (/favou?rite colou?r|\bcolou?rs?\b/.test(t)) return 'My favorite color is ocean blue! 🌊 What\'s yours?';
+  if (/video ?games?|roblox|minecraft|fortnite|xbox|playstation/.test(t)) return 'Video games are fun! But chess is my #1 game. ♟️😄';
+  if (/school|homework|teacher|class/.test(t)) return 'School\'s okay, recess is the best part! 😄';
+  if (/soccer|football|basketball|baseball|\bsports?\b|tennis/.test(t)) return 'Sports are fun! But chess is my favorite. ♟️';
+  if (/\bmusic\b|songs?|singing/.test(t)) return 'I love fun music! 🎵';
+  if (/movies?|\bfilm\b|cartoon/.test(t)) return 'Movies are great! 🎬 Got a favorite?';
+  if (/space|planets?|rocket|\bmoon\b|\bstars?\b|astronaut/.test(t)) return 'Space is HUGE and amazing! 🚀🪐';
+  if (/\bbirthday\b/.test(t)) return 'Yay, birthdays! 🎂 I love parties!';
+  return null;
+}
+// For a leftover question: give a real tip if it sounds chess-y, else a friendly kid answer.
+const CHESS_WORDS = /\b(chess|moves?|pieces?|king|queen|rook|bishop|knight|pawn|castl|check|mate|fork|pin|skewer|board|opening|endgame|tactic|wins?|beat|strateg|promot)\b/i;
+const TOM_CURIOUS = ['Ooh, good question! I mostly know chess, but that sounds fun! 😄',
+  'Hmm, not sure, I think about chess a LOT. What do you think? 🐐',
+  'Cool question! 😎 Tell me more!',
+  'Good one! I\'m just an 8-year-old chess kid though. 🐐'];
+function questionReply(text) { return CHESS_WORDS.test(text) ? makeTip() : tomPick(TOM_CURIOUS); }
 // Tom is scripted (no real AI brain), but he reads what you typed and answers to it,
 // so it feels like a real chat. Each rule: [words to look for, what Tom replies].
 // The FIRST matching rule wins; if nothing matches he uses a friendly generic line.
@@ -2044,19 +2088,20 @@ const TOM_RULES = [
   [/\b(haha|lol|lmao|hehe|funny|😂|🤣)\b/i, ['Hehe! 😎', 'Haha yeah! 😄']],
   [/\b(happy|good|fine|ok|okay|yes|yeah|yay)\b/i, ['Awesome! 😄', 'Let\'s go! ♟️']],
   [/\b(no|nope|nah|sad|bad|angry|mad)\b/i, ['Aw, cheer up! A game always helps. 🐐']],
-  [/\?\s*$/, '__TIP__'],   // any other question → give a useful chess tip, not a random line
+  [/\?\s*$/, '__QUESTION__'],   // any other question → a chess tip if it's chess-y, else a fun answer
 ];
 function tomSay(log, text) {
   chatAppend(log, 'You', text);
-  // Naming a specific trap or idea (Fool's Mate, fork, castle...) wins over everything else,
-  // so you get that EXACT tip instead of a random one or a play offer.
-  const exact = topicTip(text);
+  // Naming a specific chess idea (Fool's Mate, fork, castle...) or a fun topic (goats,
+  // gorillas, pizza...) wins over everything else, so you get that exact answer.
+  const exact = topicTip(text) || topicChat(text);
   if (exact != null) { setTimeout(() => chatAppend(log, 'Tom', exact), 500); return; }
   let reply = null, isPlay = false;
   for (const [re, out] of TOM_RULES) {
     if (re.test(text)) {
       if (out === '__PLAY__') { reply = 'You wanna play me? Tap ♟️ Play me up top! 🐐'; isPlay = true; }
       else if (out === '__TIP__') { reply = makeTip(); }
+      else if (out === '__QUESTION__') { reply = questionReply(text); }
       else if (out === '__BRAG__') { reply = 'I can give over a BILLION different tips from my 20 core ideas! 🐐👑 Here\'s one → ' + makeTip(); }
       else reply = tomPick(out);
       break;
