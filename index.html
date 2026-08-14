@@ -94,6 +94,11 @@
         <div class="mode-label">Chat <span class="gold-pill">&#129351; Gold</span></div>
         <div class="mode-sub">Talk to Tom &middot; or the whole world</div>
       </button>
+      <button class="mode-card" data-mode="achievements">
+        <div class="mode-icon">&#127942;</div>
+        <div class="mode-label">Achievements <span class="free-pill">Free</span></div>
+        <div class="mode-sub">120 trophies across 40 topics to unlock</div>
+      </button>
       <button class="mode-card wide" data-mode="online">
         <div class="mode-icon">&#127760;</div>
         <div class="mode-label">Play Online <span class="free-pill">Free</span></div>
@@ -280,6 +285,16 @@
     </div>
   </div>
 
+  <!-- ACHIEVEMENTS MODAL -->
+  <div id="ach-modal" class="modal-overlay hidden">
+    <div class="modal ach-modal-box">
+      <button class="modal-close" id="ach-close">&times;</button>
+      <h2>&#127942; Achievements</h2>
+      <div id="ach-summary" class="ach-summary"></div>
+      <div id="ach-list" class="ach-list"></div>
+    </div>
+  </div>
+
   <!-- PLAY ONLINE MODAL -->
   <div id="online-modal" class="modal-overlay hidden">
     <div class="modal">
@@ -421,6 +436,7 @@
   <script src="sf.js"></script>
   <script src="music.js"></script>
   <script src="puzzles.js"></script>
+  <script src="achievements.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

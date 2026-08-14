@@ -954,3 +954,37 @@ button:focus-visible, input:focus-visible, [tabindex]:focus-visible {
 .chat-play-btn:hover { background: var(--accent-2); }
 .chat-play-btn.nudge { animation: playnudge 0.5s ease 2; }
 @keyframes playnudge { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-3px); } 75% { transform: translateX(3px); } }
+
+/* ===== Achievements ===== */
+.mode-card[data-mode="achievements"] .mode-icon { background: linear-gradient(150deg, #ffd76f, #e0a52f); }
+.ach-modal-box { max-width: 720px; width: 92vw; max-height: 86vh; display: flex; flex-direction: column; }
+.ach-summary { display: flex; flex-direction: column; gap: 8px; margin: 4px 0 14px; }
+.ach-count { font-size: 15px; }
+.ach-count strong { color: var(--accent-2); font-size: 20px; }
+.ach-bar { height: 10px; background: var(--panel-2); border: 1px solid var(--border); border-radius: 999px; overflow: hidden; }
+.ach-bar-fill { height: 100%; background: linear-gradient(90deg, #e0a52f, #ffd76f); border-radius: 999px; transition: width 0.3s; }
+.ach-list { overflow-y: auto; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding-right: 4px; }
+.ach-topic { background: var(--panel-2); border: 1px solid var(--border); border-radius: 12px; padding: 10px 12px; }
+.ach-topic.all-done { border-color: var(--accent); box-shadow: 0 0 0 1px rgba(224,165,47,0.25); }
+.ach-topic-head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.ach-topic-ico { font-size: 18px; }
+.ach-topic-name { font-weight: 700; font-size: 14px; flex: 1; }
+.ach-topic-count { font-size: 12px; color: var(--muted); }
+.ach-items { display: flex; flex-direction: column; gap: 5px; }
+.ach-item { display: flex; align-items: center; gap: 7px; font-size: 12.5px; padding: 4px 7px; border-radius: 8px; background: var(--panel); }
+.ach-item.got { color: var(--text); }
+.ach-item.got .ach-tick { color: var(--good); }
+.ach-item.locked { color: var(--muted); }
+.ach-item .ach-name { flex: 1; }
+.ach-prog { font-size: 11px; color: var(--muted); }
+@media (max-width: 560px) { .ach-list { grid-template-columns: 1fr; } }
+
+/* Unlock toast (bottom-center) */
+.ach-toast { position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 120%); z-index: 60;
+  display: flex; align-items: center; gap: 12px; background: linear-gradient(135deg, #3a2e12, #2a2620);
+  border: 1px solid var(--accent); border-radius: 14px; padding: 12px 18px; box-shadow: var(--shadow);
+  opacity: 0; transition: transform 0.35s ease, opacity 0.35s ease; max-width: 90vw; }
+.ach-toast.show { transform: translate(-50%, 0); opacity: 1; }
+.ach-toast-ico { font-size: 28px; }
+.ach-toast-top { display: block; font-size: 11px; color: var(--accent-2); text-transform: uppercase; letter-spacing: 0.5px; }
+.ach-toast-name { display: block; font-weight: 700; font-size: 15px; }

@@ -330,7 +330,104 @@ function renderStreakBanner(evt) {
   el.classList.toggle('streak-1000', big);
   el.classList.add('show');
 }
-function refreshStreak() { renderStreakBanner(updateStreak().event); }
+function refreshStreak() { renderStreakBanner(updateStreak().event); if (typeof checkAchievements === 'function') checkAchievements(); }
+
+// ============ Achievements ============
+// 120 achievements across 40 topics (defined in achievements.js as window.ACH_TOPICS).
+// Stats are counted globally (never tied to a login, so they don't reset on restart).
+const ACH_ALL = (window.ACH_TOPICS || []).flatMap(g =>
+  g.a.map(([name, desc, stat, need]) => ({ name, desc, stat, need, topic: g.t, icon: g.icon })));
+function getStats() { try { return JSON.parse(localStorage.getItem('chesser_stats')) || {}; } catch { return {}; } }
+function saveStats(s) { localStorage.setItem('chesser_stats', JSON.stringify(s)); }
+function loadAch() { try { return new Set(JSON.parse(localStorage.getItem('chesser_ach')) || []); } catch { return new Set(); } }
+function saveAch(set) { localStorage.setItem('chesser_ach', JSON.stringify([...set])); }
+// Add to a numeric counter (or to a set stored as an array), then re-check achievements.
+function bumpStat(key, n) { const s = getStats(); s[key] = (s[key] || 0) + (n == null ? 1 : n); saveStats(s); checkAchievements(); }
+function maxStat(key, v) { const s = getStats(); if ((s[key] || 0) < v) { s[key] = v; saveStats(s); checkAchievements(); } }
+function addStatToSet(key, val) {
+  const s = getStats(); const arr = s[key] || [];
+  if (!arr.includes(val)) { arr.push(val); s[key] = arr; saveStats(s); checkAchievements(); }
+}
+// The value a given stat currently has — some are counters, some are computed from other data.
+function statValue(key) {
+  const s = getStats();
+  switch (key) {
+    case 'botsBeaten': return (s.botsBeatenList || []).length;
+    case 'modesPlayed': return (s.modesPlayedList || []).length;
+    case 'puzStreakBest': return parseInt(localStorage.getItem('chesserPzBest') || '0', 10);
+    case 'streakBest': { const st = loadStreak(); return st ? (st.best || st.streak || 0) : 0; }
+    case 'lessonsBasics': return chessLessonsDone();
+    case 'levelsDone': return (typeof LEVELS !== 'undefined') ? LEVELS.filter(l => levelComplete(l.key)).length : 0;
+    case 'collection': { const c = loadCollection(); return Object.values(c).reduce((a, b) => a + b, 0); }
+    case 'rares': { const c = loadCollection(); return Object.keys(c).filter(k => ['rare', 'epic', 'legendary', 'insane'].includes(k.split(':')[0])).reduce((a, k) => a + c[k], 0); }
+    case 'legendary': { const c = loadCollection(); return Object.keys(c).filter(k => ['legendary', 'insane'].includes(k.split(':')[0])).reduce((a, k) => a + c[k], 0); }
+    case 'tier': { const t = memberTier(); return t === 'gold' ? 3 : t === 'silver' ? 2 : t === 'bronze' ? 1 : 0; }
+    case 'puzTypes': return (s.puz_mate > 0 ? 1 : 0) + (s.puz_tactic > 0 ? 1 : 0) + (s.puz_endgame > 0 ? 1 : 0);
+    case 'unlocked': { const u = loadAch(); return ACH_ALL.filter(a => a.stat !== 'unlocked' && u.has(a.name)).length; }
+    default: return s[key] || 0;
+  }
+}
+function achDone(a, u) { return (u || loadAch()).has(a.name); }
+// Unlock any achievements whose stat has reached its target; show a toast for new ones.
+function checkAchievements(silent) {
+  const u = loadAch();
+  const fresh = [];
+  // Two passes so the "unlock N achievements" ones see the base unlocks first.
+  for (const a of ACH_ALL) { if (a.stat !== 'unlocked' && !u.has(a.name) && statValue(a.stat) >= a.need) { u.add(a.name); fresh.push(a); } }
+  for (const a of ACH_ALL) { if (a.stat === 'unlocked' && !u.has(a.name) && statValue(a.stat) >= a.need) { u.add(a.name); fresh.push(a); } }
+  if (fresh.length) {
+    saveAch(u);
+    if (!silent) fresh.forEach(showAchToast);   // silent on the first load, so no toast storm
+    if ($('ach-modal') && !$('ach-modal').classList.contains('hidden')) renderAchievements();
+  }
+  return fresh;
+}
+let _achToastQueue = [];
+function showAchToast(a) {
+  _achToastQueue.push(a);
+  if (_achToastQueue.length > 1) return; // one at a time
+  const next = () => {
+    if (!_achToastQueue.length) return;
+    const cur = _achToastQueue[0];
+    let el = $('ach-toast');
+    if (!el) { el = document.createElement('div'); el.id = 'ach-toast'; el.className = 'ach-toast'; document.body.appendChild(el); }
+    el.innerHTML = `<span class="ach-toast-ico">${cur.icon}</span><span><span class="ach-toast-top">🏆 Achievement unlocked</span><span class="ach-toast-name">${escapeHtml(cur.name)}</span></span>`;
+    el.classList.add('show');
+    setTimeout(() => { el.classList.remove('show'); setTimeout(() => { _achToastQueue.shift(); next(); }, 350); }, 2200);
+  };
+  next();
+}
+function openAchModal() { renderAchievements(); $('ach-modal').classList.remove('hidden'); }
+function renderAchievements() {
+  const u = loadAch();
+  const total = ACH_ALL.length;
+  const done = ACH_ALL.filter(a => u.has(a.name)).length;
+  const sum = $('ach-summary');
+  if (sum) sum.innerHTML =
+    `<div class="ach-count"><strong>${done}</strong> / ${total} unlocked</div>` +
+    `<div class="ach-bar"><div class="ach-bar-fill" style="width:${Math.round(done / total * 100)}%"></div></div>`;
+  const wrap = $('ach-list');
+  if (!wrap) return;
+  wrap.innerHTML = '';
+  (window.ACH_TOPICS || []).forEach(g => {
+    const topicDone = g.a.filter(([name]) => u.has(name)).length;
+    const card = document.createElement('div');
+    card.className = 'ach-topic' + (topicDone === g.a.length ? ' all-done' : '');
+    let chips = '';
+    g.a.forEach(([name, desc, stat, need]) => {
+      const got = u.has(name);
+      const have = statValue(stat);
+      const prog = got ? '' : ` <span class="ach-prog">${Math.min(have, need)}/${need}</span>`;
+      chips += `<div class="ach-item ${got ? 'got' : 'locked'}" title="${escapeHtml(desc)}">` +
+        `<span class="ach-tick">${got ? '✓' : '🔒'}</span><span class="ach-name">${escapeHtml(name)}</span>${prog}</div>`;
+    });
+    card.innerHTML = `<div class="ach-topic-head"><span class="ach-topic-ico">${g.icon}</span>` +
+      `<span class="ach-topic-name">${escapeHtml(g.t)}</span>` +
+      `<span class="ach-topic-count">${topicDone}/${g.a.length}</span></div>` +
+      `<div class="ach-items">${chips}</div>`;
+    wrap.appendChild(card);
+  });
+}
 
 // ---- Packs: open packs to collect items of six rarities ----
 const RARITIES = [
@@ -515,6 +612,7 @@ function setRating(r) {
   if (!m[u]) return;
   m[u].rating = Math.round(r);
   saveMembers(m);
+  maxStat('ratingPeak', Math.round(r));   // achievements: highest rating reached
 }
 // Standard Elo update. result: 1 win, 0.5 draw, 0 loss (from the player's view).
 function applyElo(playerR, oppR, result) {
@@ -800,6 +898,7 @@ function startGame() {
   }
   pendingBot = null;
   game.ratingApplied = false;
+  game.achCounted = false;   // count this game's result once, at endGame
   // In AI/online modes, human plays a fixed color; flip so they're at the bottom.
   game.flipped = (game.mode === 'ai' || game.mode === 'online') && game.humanColor === 'b';
   // Engine controls differ by mode: games get the Stockfish eval bar only;
@@ -1044,6 +1143,7 @@ function doMove(move) {
   game.viewIndex = null; // any new move snaps back to the live position
   const captured = captureInfo(game.state, move);
   const san = C.moveToText(game.state, move);
+  const mover = game.state.turn; // whose move this is (before the board flips)
   game.state = C.applyMove(game.state, move);
   game.history.push(san);
   game.moveHistory.push(move);
@@ -1055,6 +1155,18 @@ function doMove(move) {
   if (captured) {
     if (C.isWhite(captured)) game.capturedByBlack.push(captured);
     else game.capturedByWhite.push(captured);
+  }
+  // Achievements: count the PLAYER's own moves (not the AI's, not analyzer exploration).
+  if (game.mode !== 'analyze' && (game.mode === 'friends' || mover === game.humanColor)) {
+    const st = getStats();
+    st.moves = (st.moves || 0) + 1;
+    if (captured) st.captures = (st.captures || 0) + 1;
+    if (/^O-O/.test(san)) st.castles = (st.castles || 0) + 1;
+    if (moveToUci(move).length > 4) st.promotions = (st.promotions || 0) + 1;
+    const status = C.gameStatus(game.state);
+    if (status === 'check') st.checks = (st.checks || 0) + 1;
+    if (status === 'checkmate') { st.checks = (st.checks || 0) + 1; st.checkmates = (st.checkmates || 0) + 1; }
+    saveStats(st); checkAchievements();
   }
   // Pass-and-play AND the Analyzer: after each move, turn the board so the side to
   // move is at the bottom (facing whoever's turn it is now), no matter the flip.
@@ -1113,6 +1225,28 @@ function endGame(title, text, result) {
       ? ` Rating: ${Math.round(before)} → ${Math.round(after)} (${d >= 0 ? '+' : ''}${d}).`
       : ` Your first rating: ${Math.round(after)}! 🎉`;
     renderProfileTag();
+  }
+  // Achievements: record the result, mode, win speed, bot beaten, and rated status.
+  if (result != null && !game.achCounted) {
+    game.achCounted = true;
+    const st = getStats();
+    st.games = (st.games || 0) + 1;
+    if (game.mode === 'online') st.onlineGames = (st.onlineGames || 0) + 1;
+    if (game.mode === 'friends') st.friendsGames = (st.friendsGames || 0) + 1;
+    if (result === 1) {
+      st.wins = (st.wins || 0) + 1;
+      if (game.mode === 'ai') st.winsAI = (st.winsAI || 0) + 1;
+      const myMoves = Math.ceil(game.history.length / 2);
+      if (myMoves <= 20) st.win20 = 1;
+      if (myMoves <= 15) st.win15 = 1;
+      if (myMoves <= 10) st.win10 = 1;
+      if (game.mode === 'ai' && game.botName) {
+        const list = st.botsBeatenList || []; if (!list.includes(game.botName)) list.push(game.botName); st.botsBeatenList = list;
+      }
+    } else if (result === 0.5) st.draws = (st.draws || 0) + 1;
+    else if (result === 0) st.losses = (st.losses || 0) + 1;
+    if (game.mode === 'ai' && game.botRating != null) st.rated = (st.rated || 0) + 1;
+    saveStats(st); checkAchievements();
   }
   saveGame(`${title} — ${text}`);
   if (game.replaying) return; // loading a saved game; don't pop the modal
@@ -1617,6 +1751,7 @@ function wireEvents() {
       document.querySelectorAll('.mode-card').forEach(c => c.classList.remove('selected'));
       card.classList.add('selected');
       const mode = card.dataset.mode;
+      addStatToSet('modesPlayedList', mode);   // achievements: which of the 9 modes you've tried
       $('difficulty-panel').classList.add('hidden');
       if (mode === 'ai') {
         game.mode = 'ai';
@@ -1635,6 +1770,8 @@ function wireEvents() {
       } else if (mode === 'chat') {
         if (!requireGold()) return;      // Chat is a Gold perk
         openChatRoom();
+      } else if (mode === 'achievements') {
+        openAchModal();
       } else if (mode === 'learn') {
         openLearnModal();               // free step-by-step chess lessons
       } else if (mode === 'puzzles') {
@@ -1691,6 +1828,8 @@ function wireEvents() {
   $('ptype-tactic').onclick = () => startPuzzles('tactic');
   $('ptype-endgame').onclick = () => startPuzzles('endgame');
 
+  // achievements
+  { const ac = $('ach-close'); if (ac) ac.onclick = () => $('ach-modal').classList.add('hidden'); }
   // packs
   $('packs-close').onclick = () => $('packs-modal').classList.add('hidden');
   $('open-free-pack').onclick = openFreePack;
@@ -2092,6 +2231,7 @@ const TOM_RULES = [
 ];
 function tomSay(log, text) {
   chatAppend(log, 'You', text);
+  bumpStat('tomChats');   // achievements: messages you send to Tom
   // Naming a specific chess idea (Fool's Mate, fork, castle...) or a fun topic (goats,
   // gorillas, pizza...) wins over everything else, so you get that exact answer.
   const exact = topicTip(text) || topicChat(text);
@@ -2156,6 +2296,7 @@ function startWorldChat(main) {
 function worldSay(text) {
   chatAppend($('world-log'), 'You', text);                 // show mine right away
   onlineSend({ type: 'worldMsg', text });                  // …and send to everyone else
+  bumpStat('worldChats');                                  // achievements: world messages you send
 }
 function handleWorldChatMsg(m) {
   const s = $('world-status');
@@ -2201,6 +2342,7 @@ function startEngineGame(engine) {
     pendingBot = { name: `${engine.name} ${engine.rating}`, rating: null, engine: false, elo: null };
   }
   startGame();
+  if (engine.name === 'Tom') bumpStat('tomPlayed');   // achievements: games started vs Tom
   // No in-game chat panel — chatting lives in the Chat section, so the board stays fully clickable.
   renderStatus();
 }
@@ -2257,6 +2399,7 @@ function startAnalyzeSetup() {
   game.mode = 'analyze';
   game.difficulty = null;
   startGame();
+  bumpStat('analyzed');   // achievements: analyzer sessions
 }
 
 function startAnalyzeFromGame(rec) {
@@ -2264,6 +2407,7 @@ function startAnalyzeFromGame(rec) {
   game.mode = 'analyze';
   game.difficulty = null;
   startGame();
+  bumpStat('analyzed');   // achievements: analyzer sessions
   game.replaying = true;
   for (const uci of rec.movesUci) {
     const mv = C.uciToMove(game.state, uci);
@@ -2491,6 +2635,13 @@ function handlePuzzleMove(move) {
     renderBoard();
     // Clean solve (no wrong move, no hint) grows your streak.
     if (!game.puzzleWrong && !game.puzzleHinted) setPuzzleStreak(puzzleStreak + 1);
+    // Achievements: count solved puzzles by type and level (and clean solves).
+    const p = game.puzzle, st = getStats();
+    st.puz = (st.puz || 0) + 1;
+    st['puz_' + p.type] = (st['puz_' + p.type] || 0) + 1;
+    st['puz_' + p.level] = (st['puz_' + p.level] || 0) + 1;
+    if (!game.puzzleWrong && !game.puzzleHinted) st.puzClean = (st.puzClean || 0) + 1;
+    saveStats(st); checkAchievements();
     $('status-bar').textContent = '✓ Solved! 🎉  — press Next';
   } else {
     game.selected = null;
@@ -2588,6 +2739,7 @@ function openFreePack() {
   addToCollection(pull);
   revealPull(pull);
   refreshPacks();
+  bumpStat('packs');            // achievements: packs opened (collection/rares are computed)
 }
 
 const DAY = 86400000;
@@ -2605,6 +2757,7 @@ function silverGrant(plan) {
   saveMembers(m);
   renderMembership();
   refreshPacks();
+  checkAchievements();   // achievements: membership tier (computed)
 }
 // Show feedback right in the Pay box (so it's visible no matter where you opened Pay from).
 function payStatus(text) {
@@ -3326,12 +3479,14 @@ function finishChessLesson() {
     if (moreInSkill) { $('learn-feedback').textContent = '✅ Nice!'; setTimeout(loadBasicChallenge, 850); return; }
     const i = learn.skillIndex, wasLast = i >= CHESS_LESSONS.length - 1;
     if (i >= chessLessonsDone()) localStorage.setItem('chesserChessLessons', String(i + 1));
+    checkAchievements();   // achievements: basic-lesson progress (computed from storage)
     $('learn-feedback').textContent = wasLast ? '\u{1F389} All basics done — Levels unlocked!' : '⭐ Skill complete!';
     setTimeout(goBasics, 1300);          // back to the list so you see the new ✅
   } else {
     if (moreInSkill) { $('learn-feedback').textContent = '✅ Correct!'; setTimeout(loadLevelChallenge, 800); return; }
     const key = learn.levelKey, si = learn.skillIndex, lvl = LEVELS.find(l => l.key === key);
     if (si >= levelDone(key)) setLevelDone(key, si + 1);
+    checkAchievements();   // achievements: level progress (computed from storage)
     const wasLast = si >= SKILLS_PER_LEVEL - 1;
     $('learn-feedback').textContent = wasLast ? `\u{1F3C6} ${lvl.name} mastered!` : '⭐ Skill complete!';
     setTimeout(() => goLevel(key), 1200); // back to the star grid so you see the new ★
@@ -3353,3 +3508,4 @@ wireEvents();
 restoreSession();   // keep your membership across restarts (Bronze stays Bronze)
 renderMembership();
 renderEngineButtons();
+checkAchievements(true);   // reconcile already-earned achievements on load, silently (no toast storm)
