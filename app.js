@@ -362,6 +362,7 @@ function statValue(key) {
     case 'rares': { const c = loadCollection(); return Object.keys(c).filter(k => ['rare', 'epic', 'legendary', 'insane'].includes(k.split(':')[0])).reduce((a, k) => a + c[k], 0); }
     case 'legendary': { const c = loadCollection(); return Object.keys(c).filter(k => ['legendary', 'insane'].includes(k.split(':')[0])).reduce((a, k) => a + c[k], 0); }
     case 'tier': { const t = memberTier(); return t === 'gold' ? 3 : t === 'silver' ? 2 : t === 'bronze' ? 1 : 0; }
+    case 'account': return isSignedIn() ? 1 : 0;
     case 'puzTypes': return (s.puz_mate > 0 ? 1 : 0) + (s.puz_tactic > 0 ? 1 : 0) + (s.puz_endgame > 0 ? 1 : 0);
     case 'unlocked': { const u = loadAch(); return ACH_ALL.filter(a => a.stat !== 'unlocked' && u.has(a.name)).length; }
     default: return s[key] || 0;
@@ -828,6 +829,7 @@ function handleAuthSubmit(e) {
       saveMembers(members);
     }
     closeAuth(); renderMembership(); refreshAnalysisGate();
+    checkAchievements();   // Bronze upgrade → membership achievements
     return;
   }
 
@@ -857,6 +859,7 @@ function handleAuthSubmit(e) {
   closeAuth();
   renderMembership();
   refreshAnalysisGate();
+  checkAchievements();   // "Sign Up" / membership achievements
 }
 
 // ============ Game setup ============
@@ -1237,6 +1240,8 @@ function endGame(title, text, result) {
       st.wins = (st.wins || 0) + 1;
       if (game.mode === 'ai') st.winsAI = (st.winsAI || 0) + 1;
       const myMoves = Math.ceil(game.history.length / 2);
+      if (myMoves <= 30) st.win30 = 1;
+      if (myMoves <= 25) st.win25 = 1;
       if (myMoves <= 20) st.win20 = 1;
       if (myMoves <= 15) st.win15 = 1;
       if (myMoves <= 10) st.win10 = 1;
@@ -2194,6 +2199,30 @@ function topicChat(text) {
   if (/movies?|\bfilm\b|cartoon/.test(t)) return 'Movies are great! 🎬 Got a favorite?';
   if (/space|planets?|rocket|\bmoon\b|\bstars?\b|astronaut/.test(t)) return 'Space is HUGE and amazing! 🚀🪐';
   if (/\bbirthday\b/.test(t)) return 'Yay, birthdays! 🎂 I love parties!';
+  if (/cheetah/.test(t)) return 'Cheetahs are the FASTEST! 🐆 Zoom!';
+  if (/giraffe/.test(t)) return 'Giraffes have the longest necks! 🦒';
+  if (/wolf|wolves/.test(t)) return 'Wolves howl and hunt in packs! 🐺 Awooo!';
+  if (/kangaroo/.test(t)) return 'Kangaroos hop super high! 🦘 Boing!';
+  if (/koala/.test(t)) return 'Koalas are sleepy and cuddly! 🐨';
+  if (/\bowls?\b/.test(t)) return 'Owls are wise and see in the dark! 🦉 Hoo!';
+  if (/\bdeer\b|reindeer/.test(t)) return 'Deer are gentle and fast! 🦌';
+  if (/hamster|guinea pig/.test(t)) return 'Hamsters stuff their cheeks, so cute! 🐹';
+  if (/robots?/.test(t)) return 'Beep boop! 🤖 Robots are cool. But I do my own thinking!';
+  if (/superhero|super ?man|spider ?man|batman/.test(t)) return 'Superheroes are awesome! 🦸 My superpower is chess!';
+  if (/ninjas?/.test(t)) return 'Ninjas are sneaky, like a hidden checkmate! 🥷';
+  if (/pirates?/.test(t)) return 'Arrr! 🏴‍☠️ Pirates hunt treasure, I hunt kings!';
+  if (/dragons?/.test(t)) return 'Dragons breathe fire! 🐉 So cool!';
+  if (/wizard|magic|spell/.test(t)) return 'Magic is amazing! ✨ My magic trick is a fork. 🐴';
+  if (/rainbow/.test(t)) return 'Rainbows are so pretty! 🌈';
+  if (/\brain\b|storm/.test(t)) return 'Rainy days are perfect for chess indoors! 🌧️♟️';
+  if (/\bsnow\b|winter/.test(t)) return 'Snow days are the best! ❄️⛄';
+  if (/\bsummer\b|beach/.test(t)) return 'Summer and the beach, so fun! 🏖️☀️';
+  if (/christmas|santa/.test(t)) return 'Ho ho ho! 🎅 I want a chess set for Christmas!';
+  if (/halloween|spooky|ghost/.test(t)) return 'Boo! 👻 Halloween is spooky fun!';
+  if (/\bjokes?\b|funny thing/.test(t)) return 'Why did the pawn cross the board? To become a QUEEN! 👑😄';
+  if (/tired|sleep|sleepy/.test(t)) return 'A little tired? A quick game always wakes me up! ♟️';
+  if (/\bbored\b/.test(t)) return 'Bored? Let\'s play chess! ♟️ Tap Play me!';
+  if (/\bnumber|math|counting\b/.test(t)) return 'I love numbers! A queen is worth 9, did you know? 🔢';
   return null;
 }
 // For a leftover question: give a real tip if it sounds chess-y, else a friendly kid answer.
