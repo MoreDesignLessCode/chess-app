@@ -181,7 +181,7 @@ window.ACH_TOPICS = [
     ['Rare Find', 'Get a rare item or better', 'rares', 1],
     ['Rare Ten', 'Get 10 rare items or better', 'rares', 10],
     ['Rare 25', 'Get 25 rare items or better', 'rares', 25],
-    ['Rare 50', 'Get 50 rare items or better', 'rares', 50],
+    ['Rare Museum', 'Get 50 rare items or better', 'rares', 50],
     ['Rare Legend', 'Get a legendary item', 'legendary', 1],
     ['3 Legend', 'Get 3 legendary items', 'legendary', 3] ] },
   { t: 'Packs', icon: '📦', a: [
