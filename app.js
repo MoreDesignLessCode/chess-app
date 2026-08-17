@@ -2225,6 +2225,49 @@ function topicChat(text) {
   if (/\bnumber|math|counting\b/.test(t)) return 'I love numbers! A queen is worth 9, did you know? 🔢';
   return null;
 }
+// Real answers to "known" questions (simple math, facts, colors, counting, date/time),
+// so Tom gives an actual answer instead of a random line. Returns null if he doesn't know.
+function knownAnswer(text) {
+  const t = text.toLowerCase();
+  // simple arithmetic: "2+2", "3 plus 4", "5 times 6", "10 - 3", "8 divided by 2"
+  const m = t.match(/(\d+)\s*(plus|minus|times|divided by|[+\-*/x×])\s*(\d+)/);
+  if (m) {
+    const a = +m[1], b = +m[3], op = m[2]; let r = null, sym = op;
+    if (op === 'plus' || op === '+') { r = a + b; sym = '+'; }
+    else if (op === 'minus' || op === '-') { r = a - b; sym = '-'; }
+    else if (op === 'times' || op === '*' || op === 'x' || op === '×') { r = a * b; sym = '×'; }
+    else if (op === 'divided by' || op === '/') { r = b !== 0 ? a / b : null; sym = '÷'; }
+    if (r != null) return `${a} ${sym} ${b} = ${Number.isInteger(r) ? r : r.toFixed(2)}! 🔢`;
+  }
+  // colors
+  if (/sky/.test(t) && /colou?r/.test(t)) return 'The sky is blue! 🌤️';
+  if (/grass/.test(t) && /colou?r/.test(t)) return 'Grass is green! 🌱';
+  if (/(sun\b)/.test(t) && /colou?r/.test(t)) return 'The sun looks yellow! ☀️';
+  if (/snow/.test(t) && /colou?r/.test(t)) return 'Snow is white! ❄️';
+  // counting facts
+  if (/days? (in|a).*week|week.*days/.test(t)) return 'There are 7 days in a week! 📅';
+  if (/months? (in|a).*year|year.*months/.test(t)) return 'There are 12 months in a year!';
+  if (/hours? (in|a).*day|day.*hours/.test(t)) return 'There are 24 hours in a day! ⏰';
+  if (/squares.*chess|chess.*squares|squares.*board|board.*squares/.test(t)) return 'A chess board has 64 squares! ♟️';
+  if (/how many pieces|pieces.*start|start.*pieces/.test(t)) return 'Each side starts with 16 pieces! ♟️';
+  if (/how many legs.*(spider)/.test(t)) return 'Spiders have 8 legs! 🕷️';
+  if (/how many legs.*(insect|bug|ant|fly|bee)/.test(t)) return 'Insects have 6 legs! 🐜';
+  if (/how many legs/.test(t)) return 'Most animals like dogs and cats have 4 legs! 🐾';
+  // superlative facts
+  if (/(biggest|largest).*animal/.test(t)) return 'The blue whale is the biggest animal ever! 🐋';
+  if (/fastest.*animal|fastest land/.test(t)) return 'The cheetah is the fastest land animal! 🐆';
+  if (/tallest.*animal/.test(t)) return 'The giraffe is the tallest animal! 🦒';
+  if (/king of the jungle/.test(t)) return 'The lion is the king of the jungle! 🦁';
+  if (/best.*chess.*player|greatest.*chess/.test(t)) return 'The GOAT, of course, that\'s me! 🐐👑';
+  // date and time
+  if (/(what|which).*(day|date).*(today|now|is it)|today.*(day|date)|date today/.test(t)) {
+    const d = new Date(); return `Today is ${d.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}! 📅`;
+  }
+  if (/what.*time|time is it/.test(t)) {
+    const d = new Date(); return `It's ${d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} where you are! ⏰`;
+  }
+  return null;
+}
 // For a leftover question: give a real tip if it sounds chess-y, else a friendly kid answer.
 const CHESS_WORDS = /\b(chess|moves?|pieces?|king|queen|rook|bishop|knight|pawn|castl|check|mate|fork|pin|skewer|board|opening|endgame|tactic|wins?|beat|strateg|promot)\b/i;
 const TOM_CURIOUS = ['Ooh, good question! I mostly know chess, but that sounds fun! 😄',
@@ -2263,7 +2306,7 @@ function tomSay(log, text) {
   bumpStat('tomChats');   // achievements: messages you send to Tom
   // Naming a specific chess idea (Fool's Mate, fork, castle...) or a fun topic (goats,
   // gorillas, pizza...) wins over everything else, so you get that exact answer.
-  const exact = topicTip(text) || topicChat(text);
+  const exact = topicTip(text) || knownAnswer(text) || topicChat(text);
   if (exact != null) { setTimeout(() => chatAppend(log, 'Tom', exact), 500); return; }
   let reply = null, isPlay = false;
   for (const [re, out] of TOM_RULES) {
