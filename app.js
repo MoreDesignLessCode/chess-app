@@ -358,6 +358,8 @@ function statValue(key) {
     case 'streakBest': { const st = loadStreak(); return st ? (st.best || st.streak || 0) : 0; }
     case 'lessonsBasics': return chessLessonsDone();
     case 'levelsDone': return (typeof LEVELS !== 'undefined') ? LEVELS.filter(l => levelComplete(l.key)).length : 0;
+    case 'levelSkills': return (typeof LEVELS !== 'undefined') ? LEVELS.reduce((a, l) => a + levelDone(l.key), 0) : 0;
+    case 'chats': return (s.tomChats || 0) + (s.worldChats || 0);
     case 'collection': { const c = loadCollection(); return Object.values(c).reduce((a, b) => a + b, 0); }
     case 'rares': { const c = loadCollection(); return Object.keys(c).filter(k => ['rare', 'epic', 'legendary', 'insane'].includes(k.split(':')[0])).reduce((a, k) => a + c[k], 0); }
     case 'legendary': { const c = loadCollection(); return Object.keys(c).filter(k => ['legendary', 'insane'].includes(k.split(':')[0])).reduce((a, k) => a + c[k], 0); }
@@ -378,7 +380,16 @@ function checkAchievements(silent) {
   for (const a of ACH_ALL) { if (a.stat === 'unlocked' && !u.has(a.name) && statValue(a.stat) >= a.need) { u.add(a.name); fresh.push(a); } }
   if (fresh.length) {
     saveAch(u);
-    if (!silent) fresh.forEach(showAchToast);   // silent on the first load, so no toast storm
+    if (!silent) {
+      fresh.forEach(showAchToast);   // silent on the first load, so no toast storm
+      // If a fresh unlock just completed a whole topic, celebrate the star.
+      const freshNames = new Set(fresh.map(a => a.name));
+      (window.ACH_TOPICS || []).forEach(g => {
+        if (g.a.some(([name]) => freshNames.has(name)) && g.a.every(([name]) => u.has(name))) {
+          showAchToast({ icon: '⭐', name: g.t + ' complete!', star: true });
+        }
+      });
+    }
     if ($('ach-modal') && !$('ach-modal').classList.contains('hidden')) renderAchievements();
   }
   return fresh;
@@ -392,7 +403,8 @@ function showAchToast(a) {
     const cur = _achToastQueue[0];
     let el = $('ach-toast');
     if (!el) { el = document.createElement('div'); el.id = 'ach-toast'; el.className = 'ach-toast'; document.body.appendChild(el); }
-    el.innerHTML = `<span class="ach-toast-ico">${cur.icon}</span><span><span class="ach-toast-top">🏆 Achievement unlocked</span><span class="ach-toast-name">${escapeHtml(cur.name)}</span></span>`;
+    const top = cur.star ? '⭐ Topic complete' : '🏆 Achievement unlocked';
+    el.innerHTML = `<span class="ach-toast-ico">${cur.icon}</span><span><span class="ach-toast-top">${top}</span><span class="ach-toast-name">${escapeHtml(cur.name)}</span></span>`;
     el.classList.add('show');
     setTimeout(() => { el.classList.remove('show'); setTimeout(() => { _achToastQueue.shift(); next(); }, 350); }, 2200);
   };
@@ -403,17 +415,21 @@ function renderAchievements() {
   const u = loadAch();
   const total = ACH_ALL.length;
   const done = ACH_ALL.filter(a => u.has(a.name)).length;
+  const topics = window.ACH_TOPICS || [];
+  const stars = topics.filter(g => g.a.every(([name]) => u.has(name))).length;   // complete a topic → a star
   const sum = $('ach-summary');
   if (sum) sum.innerHTML =
-    `<div class="ach-count"><strong>${done}</strong> / ${total} unlocked</div>` +
+    `<div class="ach-count"><strong>${done}</strong> / ${total} unlocked` +
+      `<span class="ach-stars">⭐ ${stars} / ${topics.length} topics complete</span></div>` +
     `<div class="ach-bar"><div class="ach-bar-fill" style="width:${Math.round(done / total * 100)}%"></div></div>`;
   const wrap = $('ach-list');
   if (!wrap) return;
   wrap.innerHTML = '';
-  (window.ACH_TOPICS || []).forEach(g => {
+  topics.forEach(g => {
     const topicDone = g.a.filter(([name]) => u.has(name)).length;
+    const complete = topicDone === g.a.length;
     const card = document.createElement('div');
-    card.className = 'ach-topic' + (topicDone === g.a.length ? ' all-done' : '');
+    card.className = 'ach-topic' + (complete ? ' all-done' : '');
     let chips = '';
     g.a.forEach(([name, desc, stat, need]) => {
       const got = u.has(name);
@@ -424,7 +440,7 @@ function renderAchievements() {
     });
     card.innerHTML = `<div class="ach-topic-head"><span class="ach-topic-ico">${g.icon}</span>` +
       `<span class="ach-topic-name">${escapeHtml(g.t)}</span>` +
-      `<span class="ach-topic-count">${topicDone}/${g.a.length}</span></div>` +
+      `<span class="ach-topic-count">${complete ? '⭐' : topicDone + '/' + g.a.length}</span></div>` +
       `<div class="ach-items">${chips}</div>`;
     wrap.appendChild(card);
   });
@@ -1245,6 +1261,7 @@ function endGame(title, text, result) {
       if (myMoves <= 20) st.win20 = 1;
       if (myMoves <= 15) st.win15 = 1;
       if (myMoves <= 10) st.win10 = 1;
+      if (myMoves <= 8) st.win8 = 1;
       if (game.mode === 'ai' && game.botName) {
         const list = st.botsBeatenList || []; if (!list.includes(game.botName)) list.push(game.botName); st.botsBeatenList = list;
       }

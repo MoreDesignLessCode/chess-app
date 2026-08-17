@@ -989,3 +989,7 @@ button:focus-visible, input:focus-visible, [tabindex]:focus-visible {
 .ach-toast-top { display: block; font-size: 11px; color: var(--accent-2); text-transform: uppercase; letter-spacing: 0.5px; }
 .ach-toast-name { display: block; font-weight: 700; font-size: 15px; }
 
+
+/* Achievement completion stars */
+.ach-stars { margin-left: 12px; font-size: 13px; color: var(--accent-2); }
+.ach-topic.all-done .ach-topic-count { font-size: 16px; }
