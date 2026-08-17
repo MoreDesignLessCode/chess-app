@@ -2268,6 +2268,25 @@ function knownAnswer(text) {
   }
   return null;
 }
+// Ranking / comparison questions ("best to worst gorilla lion goat", "shark vs lion",
+// "who's stronger?"). Tom lists everything you named in order — and the Goat is always #1.
+const RANKABLE = [
+  ['goat', '🐐', 100], ['shark', '🦈', 82], ['lion', '🦁', 75], ['tiger', '🐯', 72], ['gorilla', '🦍', 68],
+  ['bear', '🐻', 63], ['wolf', '🐺', 52], ['eagle', '🦅', 48], ['dog', '🐶', 42], ['cat', '🐱', 36],
+  ['snake', '🐍', 30], ['rabbit', '🐰', 20], ['queen', '👑', 9], ['rook', '♜', 5], ['bishop', '♝', 3],
+  ['knight', '🐴', 3], ['pawn', '♟️', 1],
+];
+function rankAnswer(text) {
+  const t = text.toLowerCase();
+  if (!/\brank\b|best to worst|worst to best|\border\b|who.{0,12}(win|stronger|better|best|tough)|which.{0,12}(better|best|stronger|win)|\bvs\b|versus|stronger than|who would win/.test(t)) return null;
+  const found = RANKABLE.filter(([n]) => new RegExp('\\b' + n + 's?\\b').test(t));
+  if (found.length < 2) return 'Hard to say! But one thing\'s for sure: the GOAT is always #1. 🐐👑';
+  const worstFirst = /worst to best/.test(t);
+  const sorted = [...found].sort((a, b) => worstFirst ? a[2] - b[2] : b[2] - a[2]);
+  const list = sorted.map(([n, e], i) => `${i + 1}. ${e} ${n.charAt(0).toUpperCase() + n.slice(1)}`).join('   ');
+  const goatIn = found.some(([n]) => n === 'goat');
+  return `My ranking, ${worstFirst ? 'worst to best' : 'best to worst'}:  ${list}` + (goatIn ? '  (Goat is #1, because I\'M the GOAT! 🐐👑)' : '');
+}
 // For a leftover question: give a real tip if it sounds chess-y, else a friendly kid answer.
 const CHESS_WORDS = /\b(chess|moves?|pieces?|king|queen|rook|bishop|knight|pawn|castl|check|mate|fork|pin|skewer|board|opening|endgame|tactic|wins?|beat|strateg|promot)\b/i;
 const TOM_CURIOUS = ['Ooh, good question! I mostly know chess, but that sounds fun! 😄',
@@ -2306,7 +2325,7 @@ function tomSay(log, text) {
   bumpStat('tomChats');   // achievements: messages you send to Tom
   // Naming a specific chess idea (Fool's Mate, fork, castle...) or a fun topic (goats,
   // gorillas, pizza...) wins over everything else, so you get that exact answer.
-  const exact = topicTip(text) || knownAnswer(text) || topicChat(text);
+  const exact = rankAnswer(text) || topicTip(text) || knownAnswer(text) || topicChat(text);
   if (exact != null) { setTimeout(() => chatAppend(log, 'Tom', exact), 500); return; }
   let reply = null, isPlay = false;
   for (const [re, out] of TOM_RULES) {
