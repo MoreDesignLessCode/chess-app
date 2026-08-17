@@ -333,14 +333,52 @@ function renderStreakBanner(evt) {
 function refreshStreak() { renderStreakBanner(updateStreak().event); if (typeof checkAchievements === 'function') checkAchievements(); }
 
 // ============ Achievements ============
-// 120 achievements across 40 topics (defined in achievements.js as window.ACH_TOPICS).
+// 300 achievements across 50 topics (defined in achievements.js as window.ACH_TOPICS).
 // Stats are counted globally (never tied to a login, so they don't reset on restart).
+// Each of a topic's 6 tiers is worth stars when claimed: 1, 2, 3, 5, 10, 20.
+const TIER_STARS = [1, 2, 3, 5, 10, 20];
+const REWARD_STARS = 500; // collect this many stars to earn the big reward
 const ACH_ALL = (window.ACH_TOPICS || []).flatMap(g =>
-  g.a.map(([name, desc, stat, need]) => ({ name, desc, stat, need, topic: g.t, icon: g.icon })));
+  g.a.map(([name, desc, stat, need], i) => ({ name, desc, stat, need, topic: g.t, icon: g.icon, ti: i, stars: TIER_STARS[i] || 1 })));
+const ACH_BY_NAME = Object.fromEntries(ACH_ALL.map(a => [a.name, a]));
 function getStats() { try { return JSON.parse(localStorage.getItem('chesser_stats')) || {}; } catch { return {}; } }
 function saveStats(s) { localStorage.setItem('chesser_stats', JSON.stringify(s)); }
 function loadAch() { try { return new Set(JSON.parse(localStorage.getItem('chesser_ach')) || []); } catch { return new Set(); } }
 function saveAch(set) { localStorage.setItem('chesser_ach', JSON.stringify([...set])); }
+// Claimed achievements (you press Claim to collect its stars).
+function loadClaimed() { try { return new Set(JSON.parse(localStorage.getItem('chesser_claimed')) || []); } catch { return new Set(); } }
+function saveClaimed(set) { localStorage.setItem('chesser_claimed', JSON.stringify([...set])); }
+function starBalance() { const c = loadClaimed(); let s = 0; c.forEach(n => { if (ACH_BY_NAME[n]) s += ACH_BY_NAME[n].stars; }); return s; }
+// Claim one achievement's stars (must be unlocked and not already claimed).
+function claimAch(name) {
+  const a = ACH_BY_NAME[name]; if (!a) return;
+  if (!loadAch().has(name)) return;                 // not unlocked yet
+  const c = loadClaimed(); if (c.has(name)) return; // already claimed
+  const before = starBalance();
+  c.add(name); saveClaimed(c);
+  const after = starBalance();
+  showAchToast({ icon: '⭐', name: `+${a.stars} stars claimed!`, star: true });
+  if (before < REWARD_STARS && after >= REWARD_STARS && !localStorage.getItem('chesser_reward500')) {
+    localStorage.setItem('chesser_reward500', '1');
+    showAchToast({ icon: '🏆', name: `${REWARD_STARS}-Star reward: Star Legend!`, star: true });
+  }
+  renderAchievements();
+}
+function claimAllReady() {
+  const un = loadAch(), c = loadClaimed(); let claimed = false;
+  ACH_ALL.forEach(a => { if (un.has(a.name) && !c.has(a.name)) claimed = true; });
+  if (!claimed) return;
+  const before = starBalance();
+  ACH_ALL.forEach(a => { if (un.has(a.name) && !c.has(a.name)) c.add(a.name); });
+  saveClaimed(c);
+  const after = starBalance();
+  showAchToast({ icon: '⭐', name: `+${after - before} stars claimed!`, star: true });
+  if (before < REWARD_STARS && after >= REWARD_STARS && !localStorage.getItem('chesser_reward500')) {
+    localStorage.setItem('chesser_reward500', '1');
+    showAchToast({ icon: '🏆', name: `${REWARD_STARS}-Star reward: Star Legend!`, star: true });
+  }
+  renderAchievements();
+}
 // Add to a numeric counter (or to a set stored as an array), then re-check achievements.
 function bumpStat(key, n) { const s = getStats(); s[key] = (s[key] || 0) + (n == null ? 1 : n); saveStats(s); checkAchievements(); }
 function maxStat(key, v) { const s = getStats(); if ((s[key] || 0) < v) { s[key] = v; saveStats(s); checkAchievements(); } }
@@ -380,16 +418,7 @@ function checkAchievements(silent) {
   for (const a of ACH_ALL) { if (a.stat === 'unlocked' && !u.has(a.name) && statValue(a.stat) >= a.need) { u.add(a.name); fresh.push(a); } }
   if (fresh.length) {
     saveAch(u);
-    if (!silent) {
-      fresh.forEach(showAchToast);   // silent on the first load, so no toast storm
-      // If a fresh unlock just completed a whole topic, celebrate the star.
-      const freshNames = new Set(fresh.map(a => a.name));
-      (window.ACH_TOPICS || []).forEach(g => {
-        if (g.a.some(([name]) => freshNames.has(name)) && g.a.every(([name]) => u.has(name))) {
-          showAchToast({ icon: '⭐', name: g.t + ' complete!', star: true });
-        }
-      });
-    }
+    if (!silent) fresh.forEach(showAchToast);   // silent on the first load, so no toast storm
     if ($('ach-modal') && !$('ach-modal').classList.contains('hidden')) renderAchievements();
   }
   return fresh;
@@ -412,16 +441,22 @@ function showAchToast(a) {
 }
 function openAchModal() { renderAchievements(); $('ach-modal').classList.remove('hidden'); }
 function renderAchievements() {
-  const u = loadAch();
+  const u = loadAch(), claimed = loadClaimed();
   const total = ACH_ALL.length;
   const done = ACH_ALL.filter(a => u.has(a.name)).length;
   const topics = window.ACH_TOPICS || [];
-  const stars = topics.filter(g => g.a.every(([name]) => u.has(name))).length;   // complete a topic → a star
+  const bal = starBalance();
+  const readyCount = ACH_ALL.filter(a => u.has(a.name) && !claimed.has(a.name)).length;
+  const rewardPct = Math.min(100, Math.round(bal / REWARD_STARS * 100));
+  const gotReward = bal >= REWARD_STARS;
   const sum = $('ach-summary');
   if (sum) sum.innerHTML =
     `<div class="ach-count"><strong>${done}</strong> / ${total} unlocked` +
-      `<span class="ach-stars">⭐ ${stars} / ${topics.length} topics complete</span></div>` +
-    `<div class="ach-bar"><div class="ach-bar-fill" style="width:${Math.round(done / total * 100)}%"></div></div>`;
+      `<span class="ach-stars">⭐ ${bal} stars</span>` +
+      (readyCount ? `<button id="ach-claim-all" class="ach-claim-all">Claim all (${readyCount})</button>` : '') + `</div>` +
+    `<div class="ach-reward">${gotReward ? '🏆 ' + REWARD_STARS + '-Star reward earned, Star Legend!' : `Reward at ${REWARD_STARS} ⭐ &mdash; ${bal}/${REWARD_STARS}`}` +
+      `<div class="ach-bar"><div class="ach-bar-fill" style="width:${rewardPct}%"></div></div></div>`;
+  if ($('ach-claim-all')) $('ach-claim-all').onclick = claimAllReady;
   const wrap = $('ach-list');
   if (!wrap) return;
   wrap.innerHTML = '';
@@ -431,12 +466,14 @@ function renderAchievements() {
     const card = document.createElement('div');
     card.className = 'ach-topic' + (complete ? ' all-done' : '');
     let chips = '';
-    g.a.forEach(([name, desc, stat, need]) => {
-      const got = u.has(name);
-      const have = statValue(stat);
-      const prog = got ? '' : ` <span class="ach-prog">${Math.min(have, need)}/${need}</span>`;
-      chips += `<div class="ach-item ${got ? 'got' : 'locked'}" title="${escapeHtml(desc)}">` +
-        `<span class="ach-tick">${got ? '✓' : '🔒'}</span><span class="ach-name">${escapeHtml(name)}</span>${prog}</div>`;
+    g.a.forEach(([name, desc, stat, need], i) => {
+      const got = u.has(name), isClaimed = claimed.has(name), val = TIER_STARS[i] || 1;
+      let right;
+      if (got && !isClaimed) right = `<button class="ach-claim" data-ach="${escapeHtml(name)}">Claim +${val}⭐</button>`;
+      else if (isClaimed) right = `<span class="ach-earned">+${val}⭐</span>`;
+      else right = `<span class="ach-prog">${Math.min(statValue(stat), need)}/${need}</span>`;
+      chips += `<div class="ach-item ${got ? 'got' : 'locked'}${isClaimed ? ' claimed' : ''}" title="${escapeHtml(desc)}">` +
+        `<span class="ach-tick">${got ? '✓' : '🔒'}</span><span class="ach-name">${escapeHtml(name)}</span>${right}</div>`;
     });
     card.innerHTML = `<div class="ach-topic-head"><span class="ach-topic-ico">${g.icon}</span>` +
       `<span class="ach-topic-name">${escapeHtml(g.t)}</span>` +
@@ -444,6 +481,7 @@ function renderAchievements() {
       `<div class="ach-items">${chips}</div>`;
     wrap.appendChild(card);
   });
+  wrap.querySelectorAll('.ach-claim').forEach(b => { b.onclick = () => claimAch(b.dataset.ach); });
 }
 
 // ---- Packs: open packs to collect items of six rarities ----
