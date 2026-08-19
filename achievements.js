@@ -179,11 +179,11 @@ window.ACH_TOPICS = [
     ['Grand Museum', 'Collect 250 items', 'collection', 250] ] },
   { t: 'Rare Finds', icon: '💎', a: [
     ['Rare Find', 'Get a rare item or better', 'rares', 1],
-    ['Rare Ten', 'Get 10 rare items or better', 'rares', 10],
-    ['Rare 25', 'Get 25 rare items or better', 'rares', 25],
-    ['Rare Museum', 'Get 50 rare items or better', 'rares', 50],
-    ['Rare Legend', 'Get a legendary item', 'legendary', 1],
-    ['3 Legend', 'Get 3 legendary items', 'legendary', 3] ] },
+    ['Rare 10', 'Get 10 rare items or better', 'rares', 10],
+    ['Rarer 25', 'Get 25 rare items or better', 'rares', 25],
+    ['Rare 50', 'Get 50 rare items or better', 'rares', 50],
+    ['Rare Museum', 'Get 75 rare items or better', 'rares', 75],
+    ['Rare Legend', 'Get 100 rare items or better', 'rares', 100] ] },
   { t: 'Packs', icon: '📦', a: [
     ['Pack Opener', 'Open a pack', 'packs', 1],
     ['Pack Ten', 'Open 10 packs', 'packs', 10],
