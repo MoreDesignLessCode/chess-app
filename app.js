@@ -468,11 +468,10 @@ function renderAchievements() {
   ];
   const next = rewards.find(r => bal < r.stars);          // the next reward you're working toward
   const barPct = next ? Math.min(100, Math.round(bal / next.stars * 100)) : 100;
-  let rewardRows = rewards.map(r => {
-    const got = bal >= r.stars;
-    return `<span class="ach-reward-row ${got ? 'got' : ''}">${r.icon} ${escapeHtml(r.name)} ` +
-      `<b>${got ? '✓' : bal + '/' + r.stars + '⭐'}</b></span>`;
-  }).join('');
+  // Show ONLY the next reward. Once you earn one, it drops off and the next appears.
+  const rewardRows = next
+    ? `<span class="ach-reward-row">Next reward: ${next.icon} ${escapeHtml(next.name)} <b>${bal}/${next.stars}⭐</b></span>`
+    : '<span class="ach-reward-row got">🏆 All star rewards earned!</span>';
   const sum = $('ach-summary');
   if (sum) sum.innerHTML =
     `<div class="ach-count"><strong>${done}</strong> / ${total} unlocked` +
