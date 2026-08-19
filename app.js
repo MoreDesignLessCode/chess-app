@@ -71,6 +71,7 @@ const MARKS = {
   book:      { label: 'Book',      sym: '\u{1F4D6}', cls: 'm-book' },
   good:      { label: 'Good',      sym: '✓',  cls: 'm-good' },
   okay:      { label: 'Okay',      sym: '\u{1F642}', cls: 'm-okay' }, // 🙂 a fine, unremarkable move
+  chaos:     { label: 'Chaos', sym: '\u{1F300}', cls: 'm-chaos' }, // 🌀 a crazy, wild move that keeps it even
   interesting: { label: 'Interesting', sym: '!?', cls: 'm-interesting' }, // fun but slightly inaccurate
   dubious:   { label: 'Inaccuracy', sym: '?!', cls: 'm-dubious' }, // "Inaccuracy" (key stays 'dubious')
   mistake:   { label: 'Mistake',   sym: '?',  cls: 'm-mistake' },
@@ -78,7 +79,7 @@ const MARKS = {
   blunder:   { label: 'Blunder',   sym: '??', cls: 'm-blunder' },
   shame:     { label: 'Fatal Blunder', sym: '???', cls: 'm-shame' }, // renamed from "Shame" (key stays 'shame')
 };
-const MARK_ORDER = ['legendary', 'brilliant', 'great', 'best', 'excellent', 'good', 'okay', 'book', 'forced', 'interesting', 'dubious', 'mistake', 'miss', 'blunder', 'shame'];
+const MARK_ORDER = ['legendary', 'brilliant', 'great', 'best', 'excellent', 'good', 'okay', 'book', 'forced', 'chaos', 'interesting', 'dubious', 'mistake', 'miss', 'blunder', 'shame'];
 
 // Small opening book (SAN sequences) used to tag early "Book" moves.
 const OPENING_BOOK = [
@@ -1628,6 +1629,10 @@ function classifyPly(i, evals) {
   // Legendary = a queen-level sac or a sac that forces mate (à la Marshall's Qg3!!).
   const soundSac = netSac >= 200 && playedWP >= 0.45 && (isBest || drop <= 0.05);
   if (soundSac) return (mateForS || netSac >= 800) ? 'legendary' : 'brilliant';
+
+  // Chaos: a crazy, wild move — you give up material but the eval barely moves (little
+  // drop AND no clear gain), so the position stays tense and about even, not an inaccuracy.
+  if (netSac >= 100 && drop <= 0.08 && Math.abs(playedValue) <= 90) return 'chaos';
 
   // (Allowing a forced mate is no longer auto-Fatal — a mate is worth ~10 pawns
   // below, so it's graded by the eval SWING: fatal only if you were doing OK first.)
