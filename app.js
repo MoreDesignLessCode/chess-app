@@ -338,7 +338,22 @@ function refreshStreak() { renderStreakBanner(updateStreak().event); if (typeof 
 // Stats are counted globally (never tied to a login, so they don't reset on restart).
 // Each of a topic's 6 tiers is worth stars when claimed: 1, 2, 3, 5, 10, 20.
 const TIER_STARS = [1, 2, 3, 5, 10, 20];
-const REWARD_STARS = 500; // collect this many stars to earn the big reward
+const REWARD_STARS = 500;   // 🌟 Star Legend badge
+const REWARD2_STARS = 1000; // 📦 3 packs a day
+function hasStarBadge() { return !!localStorage.getItem('chesser_reward500'); }
+function has3Packs() { return !!localStorage.getItem('chesser_reward1000'); }
+// Grant the star-milestone rewards when the balance crosses 500 / 1000.
+function checkStarRewards(before, after) {
+  if (before < REWARD_STARS && after >= REWARD_STARS && !hasStarBadge()) {
+    localStorage.setItem('chesser_reward500', '1');
+    showAchToast({ icon: '🌟', name: 'Star Legend badge earned!', star: true });
+    renderMembership();   // show the badge on the profile
+  }
+  if (before < REWARD2_STARS && after >= REWARD2_STARS && !has3Packs()) {
+    localStorage.setItem('chesser_reward1000', '1');
+    showAchToast({ icon: '📦', name: 'Reward: 3 packs a day!', star: true });
+  }
+}
 const ACH_ALL = (window.ACH_TOPICS || []).flatMap(g =>
   g.a.map(([name, desc, stat, need], i) => ({ name, desc, stat, need, topic: g.t, icon: g.icon, ti: i, stars: TIER_STARS[i] || 1 })));
 const ACH_BY_NAME = Object.fromEntries(ACH_ALL.map(a => [a.name, a]));
@@ -359,10 +374,7 @@ function claimAch(name) {
   c.add(name); saveClaimed(c);
   const after = starBalance();
   showAchToast({ icon: '⭐', name: `+${a.stars} stars claimed!`, star: true });
-  if (before < REWARD_STARS && after >= REWARD_STARS && !localStorage.getItem('chesser_reward500')) {
-    localStorage.setItem('chesser_reward500', '1');
-    showAchToast({ icon: '🏆', name: `${REWARD_STARS}-Star reward: Star Legend!`, star: true });
-  }
+  checkStarRewards(before, after);
   renderAchievements();
 }
 function claimAllReady() {
@@ -374,10 +386,7 @@ function claimAllReady() {
   saveClaimed(c);
   const after = starBalance();
   showAchToast({ icon: '⭐', name: `+${after - before} stars claimed!`, star: true });
-  if (before < REWARD_STARS && after >= REWARD_STARS && !localStorage.getItem('chesser_reward500')) {
-    localStorage.setItem('chesser_reward500', '1');
-    showAchToast({ icon: '🏆', name: `${REWARD_STARS}-Star reward: Star Legend!`, star: true });
-  }
+  checkStarRewards(before, after);
   renderAchievements();
 }
 // Add to a numeric counter (or to a set stored as an array), then re-check achievements.
@@ -448,15 +457,25 @@ function renderAchievements() {
   const topics = window.ACH_TOPICS || [];
   const bal = starBalance();
   const readyCount = ACH_ALL.filter(a => u.has(a.name) && !claimed.has(a.name)).length;
-  const rewardPct = Math.min(100, Math.round(bal / REWARD_STARS * 100));
-  const gotReward = bal >= REWARD_STARS;
+  const rewards = [
+    { stars: REWARD_STARS, icon: '🌟', name: 'Star Legend badge' },
+    { stars: REWARD2_STARS, icon: '📦', name: '3 packs a day' },
+  ];
+  const next = rewards.find(r => bal < r.stars);          // the next reward you're working toward
+  const barPct = next ? Math.min(100, Math.round(bal / next.stars * 100)) : 100;
+  let rewardRows = rewards.map(r => {
+    const got = bal >= r.stars;
+    return `<span class="ach-reward-row ${got ? 'got' : ''}">${r.icon} ${escapeHtml(r.name)} ` +
+      `<b>${got ? '✓' : bal + '/' + r.stars + '⭐'}</b></span>`;
+  }).join('');
   const sum = $('ach-summary');
   if (sum) sum.innerHTML =
     `<div class="ach-count"><strong>${done}</strong> / ${total} unlocked` +
       `<span class="ach-stars">⭐ ${bal} stars</span>` +
+      (hasStarBadge() ? '<span class="ach-badge">🌟 Star Legend</span>' : '') +
       (readyCount ? `<button id="ach-claim-all" class="ach-claim-all">Claim all (${readyCount})</button>` : '') + `</div>` +
-    `<div class="ach-reward">${gotReward ? '🏆 ' + REWARD_STARS + '-Star reward earned, Star Legend!' : `Reward at ${REWARD_STARS} ⭐ &mdash; ${bal}/${REWARD_STARS}`}` +
-      `<div class="ach-bar"><div class="ach-bar-fill" style="width:${rewardPct}%"></div></div></div>`;
+    `<div class="ach-reward">${rewardRows}` +
+      `<div class="ach-bar"><div class="ach-bar-fill" style="width:${barPct}%"></div></div></div>`;
   if ($('ach-claim-all')) $('ach-claim-all').onclick = claimAllReady;
   const wrap = $('ach-list');
   if (!wrap) return;
@@ -651,7 +670,7 @@ function silverDaysLeft() {
 function tierLabel() { const t = memberTier(); return t === 'gold' ? 'Gold' : t === 'silver' ? 'Silver' : t === 'bronze' ? 'Bronze' : 'Free'; }
 function tierMedal() { const t = memberTier(); return t === 'gold' ? '\u{1F947}' : t === 'silver' ? '\u{1F948}' : t === 'bronze' ? '\u{1F949}' : '\u{1F193}'; } // 🥇 / 🥈 / 🥉 / 🆓
 // Packs are a Silver perk: 2 a day for either plan (they differ only in length).
-function packsPerDay() { return isSilver() ? 2 : 0; }
+function packsPerDay() { return isSilver() ? (has3Packs() ? 3 : 2) : 0; }
 
 // --- Player rating (Elo-style ladder vs the bots) ---
 // Returns the player's rating, or null if they haven't played a rated game yet.
@@ -750,6 +769,7 @@ function renderMembership() {
       <span class="member-chip ${memberTier()}" title="${tierLabel()} member">
         <span class="medal">${tierMedal()}</span>
         <span class="tier">${tierLabel()}</span>
+        ${hasStarBadge() ? '<span class="star-legend-badge" title="Star Legend — 500 stars">🌟</span>' : ''}
         <span class="name">${escapeHtml(user)}</span>
         <button class="signout" id="signout-btn">Sign out</button>
       </span>`;
