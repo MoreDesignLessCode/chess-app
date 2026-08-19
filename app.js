@@ -71,7 +71,7 @@ const MARKS = {
   book:      { label: 'Book',      sym: '\u{1F4D6}', cls: 'm-book' },
   good:      { label: 'Good',      sym: '✓',  cls: 'm-good' },
   okay:      { label: 'Okay',      sym: '\u{1F642}', cls: 'm-okay' }, // 🙂 a fine, unremarkable move
-  chaos:     { label: 'Chaos', sym: '\u{1F300}', cls: 'm-chaos' }, // 🌀 a crazy, wild move that keeps it even
+  chaos:     { label: 'Chaos', sym: '?!?', cls: 'm-chaos' }, // a crazy, wild move that keeps it even
   interesting: { label: 'Interesting', sym: '!?', cls: 'm-interesting' }, // fun but slightly inaccurate
   dubious:   { label: 'Inaccuracy', sym: '?!', cls: 'm-dubious' }, // "Inaccuracy" (key stays 'dubious')
   mistake:   { label: 'Mistake',   sym: '?',  cls: 'm-mistake' },
