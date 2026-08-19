@@ -342,12 +342,17 @@ const REWARD_STARS = 500;   // 🌟 Star Legend badge
 const REWARD2_STARS = 1000; // 📦 3 packs a day
 function hasStarBadge() { return !!localStorage.getItem('chesser_reward500'); }
 function has3Packs() { return !!localStorage.getItem('chesser_reward1000'); }
+// The earned badges shown up top (next to the sign-in / member chip).
+function renderBadges() {
+  const el = $('topbar-badges'); if (!el) return;
+  el.innerHTML = hasStarBadge() ? '<span class="topbar-badge" title="Star Legend — earned at 500 stars">🌟 Star Legend</span>' : '';
+}
 // Grant the star-milestone rewards when the balance crosses 500 / 1000.
 function checkStarRewards(before, after) {
   if (before < REWARD_STARS && after >= REWARD_STARS && !hasStarBadge()) {
     localStorage.setItem('chesser_reward500', '1');
     showAchToast({ icon: '🌟', name: 'Star Legend badge earned!', star: true });
-    renderMembership();   // show the badge on the profile
+    renderBadges();   // show the badge up top
   }
   if (before < REWARD2_STARS && after >= REWARD2_STARS && !has3Packs()) {
     localStorage.setItem('chesser_reward1000', '1');
@@ -769,7 +774,6 @@ function renderMembership() {
       <span class="member-chip ${memberTier()}" title="${tierLabel()} member">
         <span class="medal">${tierMedal()}</span>
         <span class="tier">${tierLabel()}</span>
-        ${hasStarBadge() ? '<span class="star-legend-badge" title="Star Legend — 500 stars">🌟</span>' : ''}
         <span class="name">${escapeHtml(user)}</span>
         <button class="signout" id="signout-btn">Sign out</button>
       </span>`;
@@ -3678,5 +3682,6 @@ function paintMusicBtnGlobal(on) {
 wireEvents();
 restoreSession();   // keep your membership across restarts (Bronze stays Bronze)
 renderMembership();
+renderBadges();            // show the Star Legend badge up top if earned
 renderEngineButtons();
 checkAchievements(true);   // reconcile already-earned achievements on load, silently (no toast storm)

@@ -1010,4 +1010,8 @@ button:focus-visible, input:focus-visible, [tabindex]:focus-visible {
 .ach-reward-row b { font-weight: 700; }
 .ach-reward .ach-bar { flex-basis: 100%; margin-top: 4px; }
 .ach-badge { margin-left: 10px; font-size: 12px; font-weight: 700; color: var(--accent-2); border: 1px solid var(--accent); border-radius: 999px; padding: 2px 9px; }
-.star-legend-badge { font-size: 15px; }
+
+/* Earned badges up top, next to the sign-in / member chip */
+.topbar-badges { display: flex; align-items: center; gap: 8px; }
+.topbar-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 700; color: #2a1c05;
+  background: linear-gradient(135deg, #ffe58a, #e0b64f); border-radius: 999px; padding: 5px 11px; box-shadow: var(--shadow-sm); white-space: nowrap; }
