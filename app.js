@@ -2609,10 +2609,13 @@ let onlineWS = null;
 // The Chesser server that served this page (it does app + online + payments).
 // Same origin normally; falls back to the default port for the dev preview / file://.
 function serverHost() {
+  // A configured online server (from config.js) wins — this is what makes online play work
+  // when the app is on a static host (Netlify) and the server is elsewhere (Fly/Render).
+  if (window.CHESSER_SERVER) return window.CHESSER_SERVER.replace(/^https?:\/\//, '').replace(/\/+$/, '');
   if (location.protocol === 'file:' || location.port === '4178' || !location.host) {
     return `${location.hostname || 'localhost'}:4180`;
   }
-  return location.host; // same origin — works locally on any port and when deployed
+  return location.host; // same origin — works locally on any port and when deployed together
 }
 function onlineWsUrl() {
   return `${location.protocol === 'https:' ? 'wss' : 'ws'}://${serverHost()}`;

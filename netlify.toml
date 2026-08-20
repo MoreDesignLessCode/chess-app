@@ -1,0 +1,11 @@
+# Netlify config for the Chesser static app.
+# `npm run deploy` runs build.js (assembles dist/) then uploads dist/.
+[build]
+  command = "node build.js"
+  publish = "dist"
+
+# Serve the Stockfish engine with the right type so the browser can compile it.
+[[headers]]
+  for = "/vendor/*.wasm"
+  [headers.values]
+    Content-Type = "application/wasm"

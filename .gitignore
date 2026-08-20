@@ -6,6 +6,10 @@ dist/
 build/
 out/
 
+# Deploy tooling
+.netlify/
+.fly/
+
 # Python
 __pycache__/
 *.pyc

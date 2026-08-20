@@ -6,6 +6,9 @@
   "scripts": {
     "start": "electron .",
     "online": "node online-server.js",
+    "build": "node build.js",
+    "deploy": "npm run build && netlify deploy --prod --dir=dist",
+    "deploy:server": "fly deploy",
     "dist": "electron-builder",
     "dist:mac": "electron-builder --mac",
     "dist:win": "electron-builder --win",
