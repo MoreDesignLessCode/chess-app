@@ -1,0 +1,29 @@
+# Render Blueprint — deploys BOTH pieces of Chesser from this repo.
+# One-time: in the Render dashboard choose  New +  ->  Blueprint  ->  pick this repo.
+# After that, every `git push` to the main branch redeploys automatically.
+services:
+  # 1) The online server: live games vs strangers + World chat + demo payments.
+  #    Free web services sleep when idle and wake on the next connection.
+  - type: web
+    name: chesser-server
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/health
+    envVars:
+      - key: CHESSUP_NO_BROWSER
+        value: "1"
+
+  # 2) The website itself — static, always fast, never sleeps.
+  - type: web
+    name: chesser-app
+    runtime: static
+    buildCommand: node build.js
+    staticPublishPath: ./dist
+    envVars:
+      # Auto-point the app at the server above, so online play just works — no URL editing.
+      - key: CHESSER_SERVER
+        fromService:
+          type: web
+          name: chesser-server
+          property: host

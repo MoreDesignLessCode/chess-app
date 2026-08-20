@@ -1,135 +1,88 @@
 # Deploying Chesser to the web
 
-This puts Chesser online at a real URL, for free, and gives you **two commands** you run
-yourself whenever you want to push changes. Your code stays on your computer — nothing is
-pushed to GitHub or made public except the built website.
+This puts Chesser online at a real URL, for free, using **[Render](https://render.com)** and
+your GitHub repo. After a one-time setup, your pipeline is a single command — **`git push`** —
+and Render rebuilds and redeploys automatically.
 
-There are two pieces:
+Everything is driven by [`render.yaml`](render.yaml), which deploys **two** things from this
+one repo:
 
-| Piece | What it is | Host | Needed for |
+| Service (Render name) | What it is | Sleeps? | Needed for |
 | --- | --- | --- | --- |
-| **The app** | the chess website (all the HTML/JS) | **Netlify** (free) | everything — this is your URL |
-| **The server** | a tiny Node program (`online-server.js`) | **Fly.io** (free) | live online play vs strangers + World chat |
+| **chesser-app** | the website (static files) | never — always fast | everything; this is your URL |
+| **chesser-server** | the little Node server (`online-server.js`) | sleeps when idle (free) | live games vs strangers + World chat |
 
-The app works fully on its own — play vs the computer, puzzles, lessons, achievements,
-packs, membership all run in the browser. The server is **only** needed for live games
-against strangers and the World chat room. If you skip the server, those two features just
-show a friendly "use Lichess" message and everything else is unaffected.
+The website works fully on its own — play vs the computer, puzzles, lessons, achievements,
+packs, membership all run in the browser. The server is **only** for live games against
+strangers and the World chat room; without it those two show a friendly "use Lichess"
+message and nothing else is affected.
+
+The blueprint auto-wires the app to the server (via `CHESSER_SERVER` in `render.yaml`), so
+you never have to paste URLs around.
 
 ---
 
-## Part 1 — Put the app online (Netlify)
+## One-time setup
 
-**One-time setup**
+1. **Push this code to your GitHub repo** (Render deploys from GitHub):
+   ```bash
+   git push -u origin main
+   ```
+   > ⚠️ Your repo `MoreDesignLessCode/chess-app` is **public**, so the source becomes
+   > publicly visible once pushed. If you'd rather keep it private, flip it to Private on
+   > GitHub first (repo → Settings → General → Danger Zone → Change visibility).
 
-1. Install the Netlify command-line tool:
-   ```bash
-   npm install -g netlify-cli
-   ```
-2. Log in (opens your browser; create a free account if you don't have one):
-   ```bash
-   netlify login
-   ```
-3. From the `chess-app` folder, connect a new site:
-   ```bash
-   netlify init
-   ```
-   Choose **"Create & configure a new site"**, pick your team, and accept a name (this
-   becomes your URL, e.g. `chesser-abc.netlify.app`). When it asks about build settings,
-   just accept them — `netlify.toml` already has them.
+2. **Create a free Render account** at [render.com](https://render.com) — you can sign in
+   with GitHub, which also lets Render see your repo. No credit card required for free
+   services.
 
-**Deploy (this is the command you re-run forever)**
+3. **Create the Blueprint.** In the Render dashboard click **New +** → **Blueprint**, pick
+   the `chess-app` repo, and confirm. Render reads `render.yaml` and creates **both**
+   services. First build takes a few minutes.
+
+4. When it finishes, open the **chesser-app** service — its URL (something like
+   `https://chesser-app.onrender.com`) is your link. 🎉
+
+That's it. The app is already pointed at the server automatically.
+
+---
+
+## Everyday updates (your whole pipeline)
+
+Change any code, then:
 
 ```bash
-npm run deploy
+git push        # or: npm run deploy  (same thing)
 ```
 
-That builds `dist/` and uploads it. It prints a **Website URL** at the end — that's your
-link. Open it, share it, done. Any time you change the code, run `npm run deploy` again.
-
-> You can stop here if you don't care about live online play against strangers.
+Render notices the push and redeploys both services on its own. That's the entire pipeline.
 
 ---
 
-## Part 2 — Put the online server up (Fly.io)
+## Test locally before you push (optional)
 
-This is what powers **live games vs strangers** and the **World chat**. Fly lets you deploy
-straight from your computer (no GitHub needed).
+- Run the full thing (app + online server together) on your computer:
+  ```bash
+  npm run online
+  ```
+  Then open the printed `http://localhost:4180` — open it in two windows to try a live game.
 
-**One-time setup**
-
-1. Install the Fly command-line tool:
-   ```bash
-   # macOS
-   brew install flyctl
-   # or, without Homebrew:
-   curl -L https://fly.io/install.sh | sh
-   ```
-2. Sign up / log in (opens your browser):
-   ```bash
-   fly auth signup      # first time
-   fly auth login        # after that
-   ```
-   Fly's free allowance covers a tiny server like this, but they do ask for a card at signup
-   to stop abuse.
-3. Create the app (from the `chess-app` folder). Fly reads the included `Dockerfile` and
-   `fly.toml`:
-   ```bash
-   fly launch --no-deploy
-   ```
-   - When it asks to **copy the existing configuration**, say **Yes**.
-   - If the name `chesser-server` is taken, it'll ask for a new one — pick anything unique
-     and remember it.
-   - Say **No** to a database/Redis if asked.
-
-**Deploy (re-run this whenever you change the server)**
-
-```bash
-npm run deploy:server
-```
-
-When it finishes, your server URL is `https://<your-app-name>.fly.dev`. Note the host part
-(e.g. `chesser-server.fly.dev`).
+- Or just check the built website:
+  ```bash
+  npm run build && npx serve dist
+  ```
 
 ---
-
-## Part 3 — Connect the app to the server
-
-Tell the app where the server lives:
-
-1. Open `config.js` and set the host you got from Fly (host only — no `https://`):
-   ```js
-   window.CHESSER_SERVER = "chesser-server.fly.dev";
-   ```
-2. Re-deploy the app:
-   ```bash
-   npm run deploy
-   ```
-
-Now live online play and World chat work on your public URL. 🎉
-
----
-
-## Everyday updates (the whole pipeline)
-
-- Changed the game/UI? → `npm run deploy`
-- Changed `online-server.js`? → `npm run deploy:server`
-- Both are safe to run as often as you like.
-
-## Test the built site locally first (optional)
-
-```bash
-npm run build
-npx serve dist      # then open the printed http://localhost:... address
-```
 
 ## Notes
 
-- **Free Fly servers sleep when idle** and take a few seconds to wake on the first
-  connection — normal, and it costs nothing while asleep.
-- **Prefer not to use Fly for the server?** The included `Dockerfile` also works on
-  [Render](https://render.com) (New → Web Service → Docker) or Koyeb. Those hosts deploy
-  from a Git repo instead of your local folder, so you'd connect a **private** GitHub repo.
-  Whatever you use, put its host into `config.js` and re-run `npm run deploy`.
-- Nothing here is committed publicly by these commands — Netlify uploads only the built
-  `dist/` website, and Fly builds an image from your local files. Your source stays yours.
+- **The free server sleeps when idle** and takes a few seconds to wake on the first
+  connection — normal, and it costs nothing while asleep. The website itself never sleeps,
+  so the site always loads fast; only the very first "play a stranger" click after a quiet
+  spell has a short wait.
+- **Prefer Netlify for the website instead?** The pieces still work separately. Run
+  `npm run deploy:netlify` (needs `npm i -g netlify-cli` and `netlify login` once). If you
+  do that, set the server host in [`config.js`](config.js) by hand, since only Render's
+  blueprint fills it in for you.
+- Renaming the services in `render.yaml`? Keep the `name:` under `chesser-server` and the
+  `fromService.name` in `chesser-app` matching, or the auto-wiring breaks.
