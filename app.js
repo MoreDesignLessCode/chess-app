@@ -461,6 +461,7 @@ function renderAchievements() {
   const done = ACH_ALL.filter(a => u.has(a.name)).length;
   const topics = window.ACH_TOPICS || [];
   const bal = starBalance();
+  const pct = total ? Math.round(done / total * 100) : 0;   // overall completion %
   const readyCount = ACH_ALL.filter(a => u.has(a.name) && !claimed.has(a.name)).length;
   const rewards = [
     { stars: REWARD_STARS, icon: '🌟', name: 'Star Legend badge' },
@@ -475,6 +476,7 @@ function renderAchievements() {
   const sum = $('ach-summary');
   if (sum) sum.innerHTML =
     `<div class="ach-count"><strong>${done}</strong> / ${total} unlocked` +
+      `<span class="ach-pct">${pct}%</span>` +
       `<span class="ach-stars">⭐ ${bal} stars</span>` +
       (hasStarBadge() ? '<span class="ach-badge">🌟 Star Legend</span>' : '') +
       (readyCount ? `<button id="ach-claim-all" class="ach-claim-all">Claim all (${readyCount})</button>` : '') + `</div>` +
