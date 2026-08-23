@@ -837,15 +837,18 @@ button:focus-visible, input:focus-visible, [tabindex]:focus-visible {
 /* Puzzle streak chip (in the puzzle controls) */
 .puzzle-streak { display: inline-flex; align-items: center; margin-right: auto; font-size: 15px; font-weight: 600; color: var(--text); }
 .puzzle-streak strong { color: #ffa94d; font-size: 17px; margin: 0 3px; }
-/* Tom's annotated move list under the puzzle board */
-.puzzle-moves { margin-top: 8px; max-height: 148px; overflow-y: auto; background: var(--panel-2, rgba(255,255,255,0.05)); border: 1px solid var(--border, rgba(255,255,255,0.1)); border-radius: 10px; padding: 8px 10px; font-size: 13px; line-height: 1.5; }
-.pmove { padding: 2px 0; }
-.pmove b { color: var(--text); font-family: ui-monospace, Menlo, monospace; }
-.pmove-note { color: var(--muted); }
-.pmove-ok .pmove-note { color: #5fb56f; }
-.pmove-bad .pmove-note { color: #e0708a; }
-.pmove-sys { color: #ffa94d; font-weight: 700; }
-.pmove-intro .pmove-note { color: var(--text); }
+/* Annotated move list under the puzzle board (a notation list, not a chat) */
+.puzzle-moves { margin-top: 8px; max-height: 156px; overflow-y: auto; background: var(--panel-2, rgba(255,255,255,0.05)); border: 1px solid var(--border, rgba(255,255,255,0.1)); border-radius: 10px; padding: 6px 10px; font-size: 13px; }
+.pm-head { font-size: 11px; letter-spacing: 0.5px; text-transform: uppercase; color: var(--muted); padding: 2px 0 6px; border-bottom: 1px solid var(--border, rgba(255,255,255,0.08)); margin-bottom: 4px; }
+.pmove { display: flex; align-items: baseline; gap: 6px; padding: 3px 0; }
+.pm-n { color: var(--muted); min-width: 18px; text-align: right; font-variant-numeric: tabular-nums; }
+.pmove b { color: var(--text); font-family: ui-monospace, Menlo, monospace; font-size: 14px; }
+.pm-glyph { font-weight: 700; }
+.pm-note { color: var(--muted); }
+.pmove-ok .pm-glyph, .pmove-ok .pm-note { color: #5fb56f; }
+.pmove-bad .pm-glyph, .pmove-bad .pm-note { color: #e0708a; }
+.pmove-bad b { text-decoration: line-through; opacity: 0.75; }
+.pmove-sys { color: #ffa94d; font-weight: 700; padding-left: 2px; }
 
 /* Free-tier chip (gray) and auth email/phone helper note */
 .member-chip.free { background: linear-gradient(135deg, #3a3f45, #24282c); border-color: #565c62; }
