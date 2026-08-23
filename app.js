@@ -418,7 +418,7 @@ function statValue(key) {
     case 'legendary': { const c = loadCollection(); return Object.keys(c).filter(k => ['legendary', 'insane'].includes(k.split(':')[0])).reduce((a, k) => a + c[k], 0); }
     case 'tier': { const t = memberTier(); return t === 'gold' ? 3 : t === 'silver' ? 2 : t === 'bronze' ? 1 : 0; }
     case 'account': return isSignedIn() ? 1 : 0;
-    case 'puzTypes': return (s.puz_mate > 0 ? 1 : 0) + (s.puz_tactic > 0 ? 1 : 0) + (s.puz_endgame > 0 ? 1 : 0);
+    case 'puzTypes': return (s.puz_mate > 0 ? 1 : 0) + (s.puz_tactic > 0 ? 1 : 0) + (s.puz_endgame > 0 ? 1 : 0) + (s.puz_opening > 0 ? 1 : 0);
     case 'unlocked': { const u = loadAch(); return ACH_ALL.filter(a => a.stat !== 'unlocked' && u.has(a.name)).length; }
     default: return s[key] || 0;
   }
@@ -1914,6 +1914,7 @@ function wireEvents() {
   });
   // Puzzle type chooser: Mate, Tactics, or Endgame.
   $('puzzle-type-close').onclick = () => $('puzzle-type-modal').classList.add('hidden');
+  $('ptype-opening').onclick = () => startPuzzles('opening');
   $('ptype-mate').onclick = () => startPuzzles('mate');
   $('ptype-tactic').onclick = () => startPuzzles('tactic');
   $('ptype-endgame').onclick = () => startPuzzles('endgame');
@@ -2783,8 +2784,8 @@ function loadRandomPuzzle() {
   showScreen('game');
   render();
   const left = isMember() ? '∞' : (FREE_PUZZLES_PER_DAY - dailyCounts().puzzles);
-  // Say the TYPE up front — Mate, Tactic, or Endgame — so you know what to look for.
-  const kind = p.type === 'mate' ? '♚ Mate' : p.type === 'endgame' ? '👑 Endgame' : '⚔️ Tactic';
+  // Say the TYPE up front — Opening, Mate, Tactic, or Endgame — so you know what to look for.
+  const kind = p.type === 'mate' ? '♚ Mate' : p.type === 'endgame' ? '👑 Endgame' : p.type === 'opening' ? '♙ Opening' : '⚔️ Tactic';
   const side = game.state.turn === 'w' ? 'White' : 'Black';
   $('status-bar').textContent = `${kind} — ${side} to move, find it!  (left: ${left})`;
   $('status-bar').classList.remove('check');
