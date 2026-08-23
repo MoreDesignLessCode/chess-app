@@ -837,6 +837,15 @@ button:focus-visible, input:focus-visible, [tabindex]:focus-visible {
 /* Puzzle streak chip (in the puzzle controls) */
 .puzzle-streak { display: inline-flex; align-items: center; margin-right: auto; font-size: 15px; font-weight: 600; color: var(--text); }
 .puzzle-streak strong { color: #ffa94d; font-size: 17px; margin: 0 3px; }
+/* Tom's annotated move list under the puzzle board */
+.puzzle-moves { margin-top: 8px; max-height: 148px; overflow-y: auto; background: var(--panel-2, rgba(255,255,255,0.05)); border: 1px solid var(--border, rgba(255,255,255,0.1)); border-radius: 10px; padding: 8px 10px; font-size: 13px; line-height: 1.5; }
+.pmove { padding: 2px 0; }
+.pmove b { color: var(--text); font-family: ui-monospace, Menlo, monospace; }
+.pmove-note { color: var(--muted); }
+.pmove-ok .pmove-note { color: #5fb56f; }
+.pmove-bad .pmove-note { color: #e0708a; }
+.pmove-sys { color: #ffa94d; font-weight: 700; }
+.pmove-intro .pmove-note { color: var(--text); }
 
 /* Free-tier chip (gray) and auth email/phone helper note */
 .member-chip.free { background: linear-gradient(135deg, #3a3f45, #24282c); border-color: #565c62; }

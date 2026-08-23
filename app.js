@@ -996,6 +996,7 @@ function startGame() {
   mainControlsEl().classList.remove('hidden'); // restore normal controls (leaving puzzle mode)
   $('puzzle-controls').classList.add('hidden');
   $('puzzle-difficulty').classList.add('hidden');
+  if ($('puzzle-moves')) $('puzzle-moves').classList.add('hidden');
   if ($('online-chat')) $('online-chat').classList.add('hidden'); // shown again only for online games
   showScreen('game');
   render();
@@ -1910,7 +1911,7 @@ function wireEvents() {
   $('puzzle-hint').onclick = puzzleHint;
   // Easy / Normal / Hard puzzle difficulty (bottom-middle).
   document.querySelectorAll('#puzzle-difficulty .pdiff-btn').forEach(b => {
-    b.onclick = () => { game.puzzleLevel = b.dataset.plevel; loadRandomPuzzle(); };
+    b.onclick = () => { game.puzzleLevel = b.dataset.plevel; puzzleLevelRun = 0; loadRandomPuzzle(); };
   });
   // Puzzle type chooser: Mate, Tactics, or Endgame.
   $('puzzle-type-close').onclick = () => $('puzzle-type-modal').classList.add('hidden');
@@ -2781,6 +2782,10 @@ function loadRandomPuzzle() {
   $('puzzle-controls').classList.remove('hidden');
   $('puzzle-difficulty').classList.remove('hidden');
   paintPuzzleDifficulty();
+  // Fresh annotated move list for this puzzle, opened by Tom saying what to look for.
+  const movesBox = $('puzzle-moves');
+  if (movesBox) { movesBox.classList.remove('hidden'); movesBox.innerHTML = ''; }
+  pushPuzzleLine(null, 'intro', tomIntroNote(p));
   showScreen('game');
   render();
   const left = isMember() ? '∞' : (FREE_PUZZLES_PER_DAY - dailyCounts().puzzles);
@@ -2804,7 +2809,40 @@ function puzzleSolved(move, ns) {
   return p.type === 'mate' ? C.gameStatus(ns) === 'checkmate' : moveToUci(move) === p.solution;
 }
 
+// ---- Tom's annotated move list under the puzzle board + difficulty that ramps up ----
+const PZ_LEVELS = ['easy', 'normal', 'hard'];
+const PZ_LEVEL_UP_AFTER = 3;        // clean solves in a row before Tom bumps you up a level
+let puzzleLevelRun = 0;             // clean solves at the current level since the last bump
+const capFirst = s => s ? s[0].toUpperCase() + s.slice(1) : s;
+
+function pushPuzzleLine(moveTxt, kind, note) {
+  const box = $('puzzle-moves');
+  if (!box) return;
+  const row = document.createElement('div');
+  row.className = 'pmove pmove-' + kind;
+  const mark = kind === 'ok' ? '✓' : kind === 'bad' ? '✗' : '';
+  row.innerHTML = (moveTxt ? `<b>${escapeHtml(moveTxt)}</b> ${mark} ` : '') +
+    `<span class="pmove-note">🦈 Tom: ${escapeHtml(note)}</span>`;
+  box.appendChild(row);
+  box.scrollTop = box.scrollHeight;
+}
+function tomIntroNote(p) {
+  if (p.type === 'opening') return `${p.theme} Someone slipped in the opening — punish it!`;
+  if (p.type === 'mate') return 'Find the checkmate — go for the king! ♚';
+  if (p.type === 'endgame') return p.theme || 'Bring it home!';
+  return `${p.theme || 'Win the position!'} Find the winning shot!`;
+}
+function tomSolveNote(p) {
+  if (/^win the /i.test(p.theme || '')) return `Yes! ${p.theme} 🦈`;
+  if (p.type === 'mate') return 'Checkmate — beautiful! ♚🎉';
+  return ['Nailed it! 🎯', 'Boom! 💥', 'Champion move! 🏆', 'Sharks love that one! 🦈'][Math.floor(Math.random() * 4)];
+}
+function tomWrongNote() {
+  return ['Not that one — look again! 👀', 'Keep hunting! 🦈', 'So close — try another! 💪', 'That drops material. 🤔'][Math.floor(Math.random() * 4)];
+}
+
 function handlePuzzleMove(move) {
+  const moveTxt = C.moveToText(game.state, move);   // notation of the attempt, before we apply it
   const ns = C.applyMove(game.state, move);
   if (puzzleSolved(move, ns)) {
     game.state = ns;
@@ -2823,13 +2861,29 @@ function handlePuzzleMove(move) {
     if (!game.puzzleWrong && !game.puzzleHinted) st.puzClean = (st.puzClean || 0) + 1;
     saveStats(st); checkAchievements();
     $('status-bar').textContent = '✓ Solved! 🎉  — press Next';
+    pushPuzzleLine(moveTxt, 'ok', tomSolveNote(p));
+    // Difficulty ramps up: a few clean solves in a row and Tom bumps you to the next level.
+    if (!game.puzzleWrong && !game.puzzleHinted) {
+      puzzleLevelRun++;
+      const idx = PZ_LEVELS.indexOf(game.puzzleLevel || 'easy');
+      if (puzzleLevelRun >= PZ_LEVEL_UP_AFTER && idx < PZ_LEVELS.length - 1) {
+        game.puzzleLevel = PZ_LEVELS[idx + 1];
+        puzzleLevelRun = 0;
+        paintPuzzleDifficulty();
+        pushPuzzleLine(null, 'sys', `⬆️ You're on fire — leveling up to ${capFirst(game.puzzleLevel)}! 🔥`);
+      }
+    } else {
+      puzzleLevelRun = 0;
+    }
   } else {
     game.selected = null;
     game.legalForSel = [];
     game.puzzleWrong = true;
     setPuzzleStreak(0);              // a wrong move breaks the streak
+    puzzleLevelRun = 0;             // a miss pauses the difficulty climb
     renderBoard();
     $('status-bar').textContent = '✗ Not the winning move — try again!';
+    pushPuzzleLine(moveTxt, 'bad', tomWrongNote());
   }
 }
 
