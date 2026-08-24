@@ -2868,25 +2868,26 @@ function pushPuzzleSys(note) {
   box.appendChild(row);
   box.scrollTop = box.scrollHeight;
 }
-// Grade a played move by how much you're winning afterwards (from the mover's side):
-//   +2 pawns and up (a piece / monster attack)  -> Brilliant
-//   ~+1 pawn                                     -> Inaccuracy
-//   a little (space / development)               -> Mistake
-//   neutral (missed, lost nothing)               -> Miss
-//   loses material                               -> Blunder
-// A quiet positional solution or a mate is Best (not every win is "brilliant").
+// Grade a played move (from the mover's side):
+//   delivers / forces mate            -> Brilliant  (the non-obvious mating move)
+//   wins a piece or more              -> Best
+//   wins ~a pawn                      -> Inaccuracy
+//   gains a little (space/dev)        -> Mistake
+//   neutral (missed, lost nothing)    -> Miss
+//   loses material                    -> Blunder
 function gradeAttempt(state, move, isSolution) {
   const stm = state.turn;
   const ns = C.applyMove(state, move);
-  if (C.gameStatus(ns) === 'checkmate') return 'best';   // completing the mate = Best
+  if (C.gameStatus(ns) === 'checkmate') return 'brilliant';   // mating move = Brilliant
   const a = C.analyze(ns, 4);
   const afterStm = stm === 'w' ? a.evalCp : -a.evalCp;
-  if (isSolution && afterStm < 200) return 'best';       // the intended quiet/positional win
-  if (afterStm >= 200) return 'brilliant';                // +2 .. +17 — won a piece or launched a monster attack
-  if (afterStm >= 90)  return 'dubious';                  // ~a pawn — Inaccuracy
-  if (afterStm >= 35)  return 'mistake';                  // space / development ("that is something")
-  if (afterStm >= -35) return 'miss';                     // neutral — missed the win, lost nothing
-  return 'blunder';                                       // lost material / made it worse
+  if (afterStm >= 5000) return 'brilliant';               // forced mate incoming — still a mating move
+  if (afterStm >= 200) return 'best';                      // won a piece or more
+  if (isSolution) return 'best';                           // the intended quiet / positional win
+  if (afterStm >= 90)  return 'dubious';                   // ~a pawn — Inaccuracy
+  if (afterStm >= 35)  return 'mistake';                   // space / development
+  if (afterStm >= -35) return 'miss';                      // neutral — missed the win, lost nothing
+  return 'blunder';                                        // lost material / made it worse
 }
 
 function handlePuzzleMove(move) {
