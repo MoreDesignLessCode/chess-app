@@ -2868,11 +2868,24 @@ function pushPuzzleSys(note) {
   box.appendChild(row);
   box.scrollTop = box.scrollHeight;
 }
+// Grade a non-winning attempt by how much it STILL wins: grabbing the rook when the queen
+// also hung is Very Good / Good — only winning nothing is a Blunder.
+function attemptMark(state, move) {
+  const stm = state.turn;
+  const ns = C.applyMove(state, move);
+  if (C.gameStatus(ns) === 'checkmate') return 'best';   // an alternative mate still mates
+  const a = C.analyze(ns, 4);
+  const afterStm = stm === 'w' ? a.evalCp : -a.evalCp;
+  if (afterStm >= 500) return 'excellent';   // Very Good — still up a lot (e.g., took the rook)
+  if (afterStm >= 150) return 'good';         // won some material, just not the most
+  return 'blunder';                            // didn't punish — no winning edge left
+}
+
 function handlePuzzleMove(move) {
   const moveTxt = C.moveToText(game.state, move);   // notation of the attempt, before we apply it
   const ns = C.applyMove(game.state, move);
-  // In a puzzle there's one winning move: play it = Best; fail to punish = Blunder (worse than a Miss).
-  const mark = puzzleSolved(move, ns) ? 'best' : 'blunder';
+  // The puzzle's winning move = Best; a lesser winning grab = Very Good / Good; nothing won = Blunder.
+  const mark = puzzleSolved(move, ns) ? 'best' : attemptMark(game.state, move);
   if (puzzleSolved(move, ns)) {
     game.state = ns;
     game.lastMove = { from: move.from, to: move.to };
