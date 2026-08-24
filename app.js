@@ -2871,8 +2871,8 @@ function pushPuzzleSys(note) {
 // Grade a played move (from the mover's side):
 //   mating attack — forces a mate (not yet on the board)  -> Brilliant
 //   immediate mate-in-1                                   -> Great
-//   quiet positional win (the intended move, no material) -> Great
 //   wins a piece or more (a tactic)                       -> Best
+//   quiet positional win (the intended move, no material) -> Best
 //   wins ~a pawn                                          -> Inaccuracy
 //   gains a little (space/dev)                            -> Mistake
 //   neutral (missed, lost nothing)                        -> Miss
@@ -2885,7 +2885,7 @@ function gradeAttempt(state, move, isSolution) {
   const afterStm = stm === 'w' ? a.evalCp : -a.evalCp;
   if (afterStm >= 5000) return 'brilliant';               // a mating attack — forces mate a few moves out
   if (afterStm >= 200) return 'best';                      // won a piece or more — a tactic
-  if (isSolution) return 'great';                          // the intended quiet / positional win
+  if (isSolution) return 'best';                           // the intended quiet / positional win
   if (afterStm >= 90)  return 'dubious';                   // ~a pawn — Inaccuracy
   if (afterStm >= 35)  return 'mistake';                   // space / development
   if (afterStm >= -35) return 'miss';                      // neutral — missed the win, lost nothing
