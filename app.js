@@ -2827,34 +2827,53 @@ function puzzleObjective(p) {
   if (p.type === 'mate') return 'find the checkmate';
   return (p.theme || 'win the position').replace(/!$/, '').toLowerCase();
 }
-// Append one numbered move with a short annotation (✓/✗ + note). `sys` rows are level-ups.
-function pushPuzzleMove(moveTxt, kind, note) {
+// Append one numbered move tagged with its analyzer symbol (★ best, ? mistake, ?? blunder…).
+function pushPuzzleMove(moveTxt, markKey) {
   const box = $('puzzle-moves');
   if (!box) return;
+  const M = MARKS[markKey] || MARKS.good;
+  pzMoveNum++;
   const row = document.createElement('div');
-  row.className = 'pmove pmove-' + kind;
-  if (kind === 'sys') {
-    row.innerHTML = `<span class="pm-note">${escapeHtml(note)}</span>`;
-  } else {
-    pzMoveNum++;
-    row.innerHTML = `<span class="pm-n">${pzMoveNum}.</span> <b>${escapeHtml(moveTxt)}</b>` +
-      ` <span class="pm-glyph">${kind === 'ok' ? '✓' : '✗'}</span> <span class="pm-note">${escapeHtml(note)}</span>`;
-  }
+  row.className = 'pmove';
+  row.innerHTML = `<span class="pm-n">${pzMoveNum}.</span> <b>${escapeHtml(moveTxt)}</b>` +
+    ` <span class="mark ${M.cls}" title="${M.label}">${M.sym}</span> <span class="pm-note">${M.label}</span>`;
   box.appendChild(row);
   box.scrollTop = box.scrollHeight;
 }
-function solveNote(p) {
-  const m = (p.theme || '').match(/^win the (\w+)/i);
-  if (m) return `wins the ${m[1].toLowerCase()}`;
-  if (p.type === 'mate') return 'checkmate!';
-  return 'winning move!';
+function pushPuzzleSys(note) {
+  const box = $('puzzle-moves');
+  if (!box) return;
+  const row = document.createElement('div');
+  row.className = 'pmove pmove-sys';
+  row.innerHTML = `<span class="pm-note">${escapeHtml(note)}</span>`;
+  box.appendChild(row);
+  box.scrollTop = box.scrollHeight;
 }
-function wrongNote() {
-  return ['not the win', 'drops material', 'try another', 'misses it'][Math.floor(Math.random() * 4)];
+// Grade a single played move like the analyzer does: compare it to the best move by
+// centipawn loss and return a MARKS key (best / excellent / good / dubious / mistake /
+// miss / blunder).
+function analyzerMark(state, move) {
+  const before = C.analyze(state, 4);
+  const stm = state.turn;
+  const bestStm = stm === 'w' ? before.evalCp : -before.evalCp;
+  if (before.bestMove && moveToUci(move) === moveToUci(before.bestMove)) return 'best';
+  const ns = C.applyMove(state, move);
+  if (C.gameStatus(ns) === 'checkmate') return 'best';        // you delivered mate
+  const after = C.analyze(ns, 4);
+  const afterStm = stm === 'w' ? after.evalCp : -after.evalCp;
+  const loss = bestStm - afterStm;
+  if (loss <= 15) return 'best';
+  if (loss <= 45) return 'excellent';
+  if (loss <= 90) return 'good';
+  if (loss <= 150) return 'dubious';
+  if (bestStm >= 500 && loss >= 400) return 'miss';           // threw away a clearly winning chance
+  if (loss <= 320) return 'mistake';
+  return 'blunder';
 }
 
 function handlePuzzleMove(move) {
   const moveTxt = C.moveToText(game.state, move);   // notation of the attempt, before we apply it
+  const mark = analyzerMark(game.state, move);      // analyzer symbol for the move played
   const ns = C.applyMove(game.state, move);
   if (puzzleSolved(move, ns)) {
     game.state = ns;
@@ -2873,7 +2892,7 @@ function handlePuzzleMove(move) {
     if (!game.puzzleWrong && !game.puzzleHinted) st.puzClean = (st.puzClean || 0) + 1;
     saveStats(st); checkAchievements();
     $('status-bar').textContent = '✓ Solved! 🎉  — press Next';
-    pushPuzzleMove(moveTxt, 'ok', solveNote(p));
+    pushPuzzleMove(moveTxt, mark);
     // Difficulty ramps up: a few clean solves in a row and Tom bumps you to the next level.
     if (!game.puzzleWrong && !game.puzzleHinted) {
       puzzleLevelRun++;
@@ -2882,7 +2901,7 @@ function handlePuzzleMove(move) {
         game.puzzleLevel = PZ_LEVELS[idx + 1];
         puzzleLevelRun = 0;
         paintPuzzleDifficulty();
-        pushPuzzleMove(null, 'sys', `⬆️ Leveled up to ${capFirst(game.puzzleLevel)}`);
+        pushPuzzleSys(`⬆️ Leveled up to ${capFirst(game.puzzleLevel)}`);
       }
     } else {
       puzzleLevelRun = 0;
@@ -2895,7 +2914,7 @@ function handlePuzzleMove(move) {
     puzzleLevelRun = 0;             // a miss pauses the difficulty climb
     renderBoard();
     $('status-bar').textContent = '✗ Not the winning move — try again!';
-    pushPuzzleMove(moveTxt, 'bad', wrongNote());
+    pushPuzzleMove(moveTxt, mark);
   }
 }
 

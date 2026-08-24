@@ -843,11 +843,8 @@ button:focus-visible, input:focus-visible, [tabindex]:focus-visible {
 .pmove { display: flex; align-items: baseline; gap: 6px; padding: 3px 0; }
 .pm-n { color: var(--muted); min-width: 18px; text-align: right; font-variant-numeric: tabular-nums; }
 .pmove b { color: var(--text); font-family: ui-monospace, Menlo, monospace; font-size: 14px; }
-.pm-glyph { font-weight: 700; }
+.pmove .mark { margin: 0 2px; }
 .pm-note { color: var(--muted); }
-.pmove-ok .pm-glyph, .pmove-ok .pm-note { color: #5fb56f; }
-.pmove-bad .pm-glyph, .pmove-bad .pm-note { color: #e0708a; }
-.pmove-bad b { text-decoration: line-through; opacity: 0.75; }
 .pmove-sys { color: #ffa94d; font-weight: 700; padding-left: 2px; }
 
 /* Free-tier chip (gray) and auth email/phone helper note */
