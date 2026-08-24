@@ -2876,9 +2876,11 @@ function attemptMark(state, move) {
   if (C.gameStatus(ns) === 'checkmate') return 'best';   // an alternative mate still mates
   const a = C.analyze(ns, 4);
   const afterStm = stm === 'w' ? a.evalCp : -a.evalCp;
-  if (afterStm >= 500) return 'excellent';   // Very Good — still up a lot (e.g., took the rook)
+  if (afterStm >= 450) return 'excellent';   // Very Good — still up a lot (e.g., took the rook)
   if (afterStm >= 150) return 'good';         // won some material, just not the most
-  return 'blunder';                            // didn't punish — no winning edge left
+  if (afterStm >= 35)  return 'mistake';      // gained a little — space / development ("that is something")
+  if (afterStm >= -35) return 'miss';         // neutral — just missed the win, lost nothing
+  return 'blunder';                            // lost material / made it worse
 }
 
 function handlePuzzleMove(move) {
