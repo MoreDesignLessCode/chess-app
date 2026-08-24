@@ -1,8 +1,7 @@
-// Chesser puzzle set: 1503 puzzles across four types (opening / mate /
-// tactic / endgame), each split into easy / normal / hard. Difficulty is by the nature of the
-// winning move: easy = take a piece, normal = mate or forcing tactic, hard = quiet positional
-// (and the trickiest). Openings carry their line from move 1 with a grade per move. Loaded
-// before app.js, which reads window.PUZZLES.
+// Chesser puzzle set: 1516 puzzles (opening / mate / tactic / endgame).
+// Difficulty is by the nature of the winning move: Easy = take a piece, Normal = mate or
+// forcing tactic (check), Hard = a quiet positional move. Openings carry their line from
+// move 1 with a grade per move. Loaded before app.js, which reads window.PUZZLES.
 window.PUZZLES = [
 {"fen":"8/8/R7/6K1/8/8/1Q6/6k1 w - - 0 1","type":"mate","level":"hard","theme":"Queen & rook mate"},
 {"fen":"8/8/4R2K/8/7k/1Q6/8/8 w - - 0 1","type":"mate","level":"hard","theme":"Queen & rook mate"},
@@ -521,8 +520,8 @@ window.PUZZLES = [
 {"fen":"6Q1/4K3/8/3b3k/8/8/8/8 w - - 0 1","type":"tactic","level":"hard","theme":"Win the bishop","solution":"g8d5"},
 {"fen":"8/5k2/8/8/8/6K1/bR6/8 w - - 0 1","type":"tactic","level":"easy","theme":"Win the bishop","solution":"b2a2"},
 {"fen":"4k3/8/8/8/2K5/6Q1/5b2/8 w - - 0 1","type":"tactic","level":"easy","theme":"Win the bishop","solution":"g3f2"},
-{"fen":"3Q4/8/2K5/8/6k1/3b4/8/8 w - - 0 1","type":"tactic","level":"normal","theme":"Win the bishop","solution":"d8d3"},
-{"fen":"3k4/8/8/4K3/8/2Q2b2/8/8 w - - 0 1","type":"tactic","level":"normal","theme":"Win the bishop","solution":"c3f3"},
+{"fen":"3Q4/8/2K5/8/6k1/3b4/8/8 w - - 0 1","type":"tactic","level":"easy","theme":"Win the bishop","solution":"d8d3"},
+{"fen":"3k4/8/8/4K3/8/2Q2b2/8/8 w - - 0 1","type":"tactic","level":"easy","theme":"Win the bishop","solution":"c3f3"},
 {"fen":"1k1K4/4N3/6b1/8/8/8/8/8 w - - 0 1","type":"tactic","level":"easy","theme":"Win the bishop","solution":"e7g6"},
 {"fen":"5R2/8/8/2k5/8/8/3K4/5b2 w - - 0 1","type":"tactic","level":"easy","theme":"Win the bishop","solution":"f8f1"},
 {"fen":"3k4/8/3K4/5b2/8/8/5Q2/8 w - - 0 1","type":"tactic","level":"easy","theme":"Win the bishop","solution":"f2f5"},
@@ -546,7 +545,7 @@ window.PUZZLES = [
 {"fen":"8/2K2k2/8/8/5n2/8/8/5Q2 w - - 0 1","type":"tactic","level":"hard","theme":"Win the knight","solution":"f1f4"},
 {"fen":"3n4/3R4/8/8/7K/k7/8/8 w - - 0 1","type":"tactic","level":"easy","theme":"Win the knight","solution":"d7d8"},
 {"fen":"8/8/7k/8/8/8/1K6/1Q5n w - - 0 1","type":"tactic","level":"hard","theme":"Win the knight","solution":"b1h1"},
-{"fen":"8/8/1k1K1n2/8/8/8/8/Q7 w - - 0 1","type":"tactic","level":"normal","theme":"Win the knight","solution":"a1f6"},
+{"fen":"8/8/1k1K1n2/8/8/8/8/Q7 w - - 0 1","type":"tactic","level":"easy","theme":"Win the knight","solution":"a1f6"},
 {"fen":"8/k7/8/8/nR6/8/8/2K5 w - - 0 1","type":"tactic","level":"normal","theme":"Win the knight","solution":"b4a4"},
 {"fen":"6n1/5B2/8/8/8/8/3K4/7k w - - 0 1","type":"tactic","level":"easy","theme":"Win the knight","solution":"f7g8"},
 {"fen":"8/4K3/2R5/8/2n5/8/8/5k2 w - - 0 1","type":"tactic","level":"easy","theme":"Win the knight","solution":"c6c4"},
@@ -577,7 +576,7 @@ window.PUZZLES = [
 {"fen":"8/8/8/8/3R3q/k7/6K1/8 w - - 0 1","type":"tactic","level":"easy","theme":"Win the queen","solution":"d4h4"},
 {"fen":"8/6Q1/k7/4q3/8/3K4/8/8 w - - 0 1","type":"tactic","level":"easy","theme":"Win the queen","solution":"g7e5"},
 {"fen":"7q/8/1k6/3K3Q/8/8/8/8 w - - 0 1","type":"tactic","level":"easy","theme":"Win the queen","solution":"h5h8"},
-{"fen":"8/8/8/8/7K/3Q4/7k/3q4 w - - 0 1","type":"tactic","level":"normal","theme":"Win the queen","solution":"d3d1"},
+{"fen":"8/8/8/8/7K/3Q4/7k/3q4 w - - 0 1","type":"tactic","level":"easy","theme":"Win the queen","solution":"d3d1"},
 {"fen":"8/8/8/8/3K3Q/6q1/4k3/8 w - - 0 1","type":"tactic","level":"easy","theme":"Win the queen","solution":"h4g3"},
 {"fen":"8/6q1/8/8/8/2Bk1K2/8/8 w - - 0 1","type":"tactic","level":"easy","theme":"Win the queen","solution":"c3g7"},
 {"fen":"1q6/3k4/1R6/K7/8/8/8/8 w - - 0 1","type":"tactic","level":"easy","theme":"Win the queen","solution":"b6b8"},
@@ -608,8 +607,8 @@ window.PUZZLES = [
 {"fen":"8/8/5Rq1/8/8/8/3K4/k7 w - - 0 1","type":"tactic","level":"easy","theme":"Win the queen","solution":"f6g6"},
 {"fen":"8/8/8/8/2K1k3/7R/8/7q w - - 0 1","type":"tactic","level":"easy","theme":"Win the queen","solution":"h3h1"},
 {"fen":"5R2/2k5/5q2/8/8/8/K7/8 w - - 0 1","type":"tactic","level":"easy","theme":"Win the queen","solution":"f8f6"},
-{"fen":"8/8/1K6/6k1/8/2r5/5N2/8 w - - 0 1","type":"tactic","level":"hard","theme":"Knight forks the rook!","solution":"f2e4"},
-{"fen":"8/8/3r4/8/3k4/6N1/3K4/8 w - - 0 1","type":"tactic","level":"hard","theme":"Knight forks the rook!","solution":"g3f5"},
+{"fen":"8/8/1K6/6k1/8/2r5/5N2/8 w - - 0 1","type":"tactic","level":"normal","theme":"Knight forks the rook!","solution":"f2e4"},
+{"fen":"8/8/3r4/8/3k4/6N1/3K4/8 w - - 0 1","type":"tactic","level":"normal","theme":"Knight forks the rook!","solution":"g3f5"},
 {"fen":"N7/8/4K3/8/r1k5/8/8/8 w - - 0 1","type":"tactic","level":"normal","theme":"Knight forks the rook!","solution":"a8b6"},
 {"fen":"8/8/8/r3k3/8/N7/1K6/8 w - - 0 1","type":"tactic","level":"normal","theme":"Knight forks the rook!","solution":"a3c4"},
 {"fen":"8/4k3/5N2/K7/8/4r3/8/8 w - - 0 1","type":"tactic","level":"hard","theme":"Knight forks the rook!","solution":"f6d5"},
@@ -617,7 +616,7 @@ window.PUZZLES = [
 {"fen":"2r1N3/8/8/8/2k5/8/7K/8 w - - 0 1","type":"tactic","level":"normal","theme":"Knight forks the rook!","solution":"e8d6"},
 {"fen":"8/8/8/8/5K2/8/1r3k2/4N3 w - - 0 1","type":"tactic","level":"normal","theme":"Knight forks the rook!","solution":"e1d3"},
 {"fen":"1K6/1N6/4k3/8/8/3r4/8/8 w - - 0 1","type":"tactic","level":"normal","theme":"Knight forks the rook!","solution":"b7c5"},
-{"fen":"6K1/8/3r4/6k1/8/8/3N4/8 w - - 0 1","type":"tactic","level":"hard","theme":"Knight forks the rook!","solution":"d2e4"},
+{"fen":"6K1/8/3r4/6k1/8/8/3N4/8 w - - 0 1","type":"tactic","level":"normal","theme":"Knight forks the rook!","solution":"d2e4"},
 {"fen":"8/2r5/5k2/1K6/8/4N3/8/8 w - - 0 1","type":"tactic","level":"hard","theme":"Knight forks the rook!","solution":"e3d5"},
 {"fen":"8/8/8/r7/8/2K5/8/k1N5 w - - 0 1","type":"tactic","level":"normal","theme":"Knight forks the rook!","solution":"c1b3"},
 {"fen":"2k3N1/8/6r1/8/8/8/4K3/8 w - - 0 1","type":"tactic","level":"normal","theme":"Knight forks the rook!","solution":"g8e7"},
@@ -635,15 +634,15 @@ window.PUZZLES = [
 {"fen":"8/8/6K1/k3N3/8/r7/8/8 w - - 0 1","type":"tactic","level":"hard","theme":"Knight forks the rook!","solution":"e5c4"},
 {"fen":"8/8/1K6/6N1/8/8/7r/4k3 w - - 0 1","type":"tactic","level":"normal","theme":"Knight forks the rook!","solution":"g5f3"},
 {"fen":"8/1K6/8/5N2/8/8/8/3r1k2 w - - 0 1","type":"tactic","level":"hard","theme":"Knight forks the rook!","solution":"f5e3"},
-{"fen":"8/7K/5k2/2N5/8/8/3r4/8 w - - 0 1","type":"tactic","level":"hard","theme":"Knight forks the rook!","solution":"c5e4"},
+{"fen":"8/7K/5k2/2N5/8/8/3r4/8 w - - 0 1","type":"tactic","level":"normal","theme":"Knight forks the rook!","solution":"c5e4"},
 {"fen":"8/8/8/4k3/8/2K5/5r1N/8 w - - 0 1","type":"tactic","level":"normal","theme":"Knight forks the rook!","solution":"h2g4"},
 {"fen":"8/K7/3N1r2/8/8/6k1/8/8 w - - 0 1","type":"tactic","level":"hard","theme":"Knight forks the rook!","solution":"d6e4"},
 {"fen":"8/8/8/8/3k4/r7/8/N4K2 w - - 0 1","type":"tactic","level":"normal","theme":"Knight forks the rook!","solution":"a1c2"},
 {"fen":"8/1k3r2/8/1N6/8/8/4K3/8 w - - 0 1","type":"tactic","level":"normal","theme":"Knight forks the rook!","solution":"b5d6"},
 {"fen":"8/5r2/1K6/5N2/4k3/8/8/8 w - - 0 1","type":"tactic","level":"hard","theme":"Knight forks the rook!","solution":"f5d6"},
 {"fen":"8/8/8/8/4N3/8/8/1r3k1K w - - 0 1","type":"tactic","level":"normal","theme":"Knight forks the rook!","solution":"e4d2"},
-{"fen":"K7/8/8/3N4/2r5/8/8/3k4 w - - 0 1","type":"tactic","level":"hard","theme":"Knight forks the rook!","solution":"d5e3"},
-{"fen":"8/8/8/2k3r1/8/8/K4N2/8 w - - 0 1","type":"tactic","level":"hard","theme":"Knight forks the rook!","solution":"f2e4"},
+{"fen":"K7/8/8/3N4/2r5/8/8/3k4 w - - 0 1","type":"tactic","level":"normal","theme":"Knight forks the rook!","solution":"d5e3"},
+{"fen":"8/8/8/2k3r1/8/8/K4N2/8 w - - 0 1","type":"tactic","level":"normal","theme":"Knight forks the rook!","solution":"f2e4"},
 {"fen":"7K/8/8/8/2N3r1/8/8/3k4 w - - 0 1","type":"tactic","level":"normal","theme":"Knight forks the rook!","solution":"c4e3"},
 {"fen":"7k/8/8/4r3/7N/8/K7/8 w - - 0 1","type":"tactic","level":"normal","theme":"Knight forks the rook!","solution":"h4g6"},
 {"fen":"8/5k2/2N5/8/2r5/8/7K/8 w - - 0 1","type":"tactic","level":"hard","theme":"Knight forks the rook!","solution":"c6e5"},
@@ -699,7 +698,7 @@ window.PUZZLES = [
 {"fen":"7K/8/1R6/8/8/5k2/1r6/8 w - - 0 1","type":"tactic","level":"easy","theme":"Win the rook","solution":"b6b2"},
 {"fen":"1k6/8/5r2/8/4N3/8/K7/8 w - - 0 1","type":"tactic","level":"easy","theme":"Win the rook","solution":"e4f6"},
 {"fen":"8/8/1q3N2/8/1k3K2/8/8/8 w - - 0 1","type":"tactic","level":"hard","theme":"Knight forks the queen!","solution":"f6d5"},
-{"fen":"8/8/3q4/8/8/4N3/3k4/1K6 w - - 0 1","type":"tactic","level":"hard","theme":"Knight forks the queen!","solution":"e3c4"},
+{"fen":"8/8/3q4/8/8/4N3/3k4/1K6 w - - 0 1","type":"tactic","level":"normal","theme":"Knight forks the queen!","solution":"e3c4"},
 {"fen":"8/8/6q1/3k4/8/3N4/5K2/8 w - - 0 1","type":"tactic","level":"hard","theme":"Knight forks the queen!","solution":"d3f4"},
 {"fen":"8/8/8/5N2/2k3q1/8/2K5/8 w - - 0 1","type":"tactic","level":"hard","theme":"Knight forks the queen!","solution":"f5e3"},
 {"fen":"8/7K/8/8/1q6/4k3/8/4N3 w - - 0 1","type":"tactic","level":"normal","theme":"Knight forks the queen!","solution":"e1c2"},
@@ -869,7 +868,7 @@ window.PUZZLES = [
 {"fen":"2K5/7q/4k3/8/8/7N/8/8 w - - 0 1","type":"tactic","level":"normal","theme":"Knight fork wins the queen!","solution":"h3g5"},
 {"fen":"8/8/8/1K6/7N/8/7k/4q3 w - - 0 1","type":"tactic","level":"normal","theme":"Knight fork wins the queen!","solution":"h4f3"},
 {"fen":"3K4/8/2N5/1k6/8/8/2q5/8 w - - 0 1","type":"tactic","level":"hard","theme":"Knight fork wins the queen!","solution":"c6d4"},
-{"fen":"8/6k1/8/2N3q1/8/8/2K5/8 w - - 0 1","type":"tactic","level":"hard","theme":"Knight fork wins the queen!","solution":"c5e6"},
+{"fen":"8/6k1/8/2N3q1/8/8/2K5/8 w - - 0 1","type":"tactic","level":"normal","theme":"Knight fork wins the queen!","solution":"c5e6"},
 {"fen":"8/4KN2/2k5/8/8/3q4/8/8 w - - 0 1","type":"tactic","level":"normal","theme":"Knight fork wins the queen!","solution":"f7e5"},
 {"fen":"8/3q4/8/8/4k3/3N4/8/6K1 w - - 0 1","type":"tactic","level":"hard","theme":"Knight fork wins the queen!","solution":"d3c5"},
 {"fen":"8/8/8/1K6/2N3q1/8/8/5k2 w - - 0 1","type":"tactic","level":"hard","theme":"Knight fork wins the queen!","solution":"c4e3"},
@@ -1506,5 +1505,18 @@ window.PUZZLES = [
 {"fen":"r1b1kbnr/p3pppp/2P5/1pp5/3q4/4PP2/PP1P2PP/RNBQKBNR w KQkq - 1 6","type":"opening","level":"easy","theme":"Win the queen!","solution":"e3d4","line":["c2c4","d7d5","c4d5","c7c5","f2f3","b8c6","d5c6","b7b5","e2e3","d8d4"],"grades":["dubious","mistake","mistake","mistake","mistake","blunder","best","mistake","dubious","blunder"]},
 {"fen":"r1bqk1nr/pppp2pp/4pp2/2b5/3B4/5N2/PPP1PPPP/RN1QKB1R w KQkq - 1 6","type":"opening","level":"normal","theme":"Win the bishop!","solution":"d4c5","line":["d2d3","b8c6","c1e3","f7f6","g1f3","e7e6","d3d4","c6d4","e3d4","f8c5"],"grades":["good","best","dubious","mistake","dubious","dubious","mistake","blunder","mistake","blunder"]},
 {"fen":"rnbqkb1r/pppppppp/8/3n4/8/2N2N2/PPPPPPPP/R1BQKB1R w KQkq - 4 3","type":"opening","level":"easy","theme":"Win the knight!","solution":"c3d5","line":["b1c3","g8f6","g1f3","f6d5"],"grades":["best","good","good","blunder"]},
-{"fen":"rn1qkbnr/pp3ppp/8/2pN1b2/8/8/PPPPPPPP/R1BQKB1R b KQkq - 3 6","type":"opening","level":"hard","theme":"Win the knight!","solution":"d8d5","line":["g1f3","e7e5","f3e5","c7c5","e5d3","d7d6","d3c5","d6c5","b1c3","c8f5","c3d5"],"grades":["good","mistake","best","mistake","mistake","dubious","blunder","best","dubious","mistake","blunder"]}
+{"fen":"rn1qkbnr/pp3ppp/8/2pN1b2/8/8/PPPPPPPP/R1BQKB1R b KQkq - 3 6","type":"opening","level":"hard","theme":"Win the knight!","solution":"d8d5","line":["g1f3","e7e5","f3e5","c7c5","e5d3","d7d6","d3c5","d6c5","b1c3","c8f5","c3d5"],"grades":["good","mistake","best","mistake","mistake","dubious","blunder","best","dubious","mistake","blunder"]},
+{"fen":"2n5/5P2/8/4N3/4P3/7P/k2K3p/8 w - - 0 1","type":"tactic","level":"hard","theme":"Quiet move — find the best!","solution":"f7f8q"},
+{"fen":"8/1P1k3B/8/8/4pK2/3r1pN1/8/2n5 w - - 0 1","type":"tactic","level":"hard","theme":"Quiet move — find the best!","solution":"b7b8q"},
+{"fen":"2K4k/B7/1N2P3/2p4p/3b4/8/8/8 w - - 0 1","type":"tactic","level":"hard","theme":"Quiet move — find the best!","solution":"e6e7"},
+{"fen":"2B5/3Pr3/1K5k/8/2B5/1P4p1/8/8 w - - 0 1","type":"tactic","level":"hard","theme":"Quiet move — find the best!","solution":"d7d8q"},
+{"fen":"1K6/6P1/8/3n2P1/8/6k1/8/5B2 w - - 0 1","type":"tactic","level":"hard","theme":"Quiet move — find the best!","solution":"g7g8q"},
+{"fen":"8/P7/5K2/1N3n2/6k1/P7/5b2/8 w - - 0 1","type":"tactic","level":"hard","theme":"Quiet move — find the best!","solution":"a7a8q"},
+{"fen":"1N6/8/8/P2P3p/1R6/K7/3q1k2/8 w - - 0 1","type":"tactic","level":"hard","theme":"Quiet move — find the best!","solution":"b4b2"},
+{"fen":"8/3P4/3K4/8/B7/2k4P/5b2/5b2 w - - 0 1","type":"tactic","level":"hard","theme":"Quiet move — find the best!","solution":"d7d8q"},
+{"fen":"N3R3/3pP3/8/8/3k3b/5P2/p7/2K5 w - - 0 1","type":"tactic","level":"hard","theme":"Quiet move — find the best!","solution":"c1b2"},
+{"fen":"8/1k2P3/1r6/7p/4N3/8/8/3K4 w - - 0 1","type":"tactic","level":"hard","theme":"Quiet move — find the best!","solution":"e7e8q"},
+{"fen":"8/2P1B3/8/3K4/8/p2b4/4k3/8 w - - 0 1","type":"tactic","level":"hard","theme":"Quiet move — find the best!","solution":"c7c8q"},
+{"fen":"8/8/4N1P1/8/1nP5/8/2n2k1K/8 w - - 0 1","type":"tactic","level":"hard","theme":"Quiet move — find the best!","solution":"g6g7"},
+{"fen":"8/1K2P3/3k3p/1P1NR3/8/8/1q6/8 w - - 0 1","type":"tactic","level":"hard","theme":"Quiet move — find the best!","solution":"e7e8q"}
 ];
