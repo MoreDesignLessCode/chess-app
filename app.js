@@ -2869,19 +2869,20 @@ function pushPuzzleSys(note) {
   box.scrollTop = box.scrollHeight;
 }
 // Grade a played move (from the mover's side):
-//   delivers / forces mate            -> Brilliant  (the non-obvious mating move)
-//   wins a piece or more              -> Best
-//   wins ~a pawn                      -> Inaccuracy
-//   gains a little (space/dev)        -> Mistake
-//   neutral (missed, lost nothing)    -> Miss
-//   loses material                    -> Blunder
+//   mating attack — forces a mate (not yet on the board)  -> Brilliant  (the non-obvious one)
+//   obvious immediate checkmate                           -> Best
+//   wins a piece or more                                  -> Best
+//   wins ~a pawn                                          -> Inaccuracy
+//   gains a little (space/dev)                            -> Mistake
+//   neutral (missed, lost nothing)                        -> Miss
+//   loses material                                        -> Blunder
 function gradeAttempt(state, move, isSolution) {
   const stm = state.turn;
   const ns = C.applyMove(state, move);
-  if (C.gameStatus(ns) === 'checkmate') return 'brilliant';   // mating move = Brilliant
+  if (C.gameStatus(ns) === 'checkmate') return 'best';    // the obvious final mating move
   const a = C.analyze(ns, 4);
   const afterStm = stm === 'w' ? a.evalCp : -a.evalCp;
-  if (afterStm >= 5000) return 'brilliant';               // forced mate incoming — still a mating move
+  if (afterStm >= 5000) return 'brilliant';               // a mating attack — forces mate a few moves out
   if (afterStm >= 200) return 'best';                      // won a piece or more
   if (isSolution) return 'best';                           // the intended quiet / positional win
   if (afterStm >= 90)  return 'dubious';                   // ~a pawn — Inaccuracy
