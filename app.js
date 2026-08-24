@@ -2815,30 +2815,49 @@ const PZ_LEVEL_UP_AFTER = 3;        // clean solves in a row before Tom bumps yo
 let puzzleLevelRun = 0;             // clean solves at the current level since the last bump
 const capFirst = s => s ? s[0].toUpperCase() + s.slice(1) : s;
 
-let pzMoveNum = 0;
-// Start a fresh move list for a puzzle, headed by the objective (not a chat line).
-function puzzleMovesHeader(p) {
-  const box = $('puzzle-moves');
-  if (!box) return;
-  pzMoveNum = 0;
-  box.innerHTML = `<div class="pm-head">📝 Moves — ${escapeHtml(puzzleObjective(p))}</div>`;
-}
+const START_FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+let pzPlayerPly = 0;   // ply index of the move the solver has to find
 function puzzleObjective(p) {
   if (p.type === 'mate') return 'find the checkmate';
   return (p.theme || 'win the position').replace(/!$/, '').toLowerCase();
 }
-// Append one numbered move tagged with its analyzer symbol (★ best, ? mistake, ?? blunder…).
-function pushPuzzleMove(moveTxt, markKey) {
+function plyLabel(ply) {
+  const no = Math.floor(ply / 2) + 1;
+  return (ply % 2 === 0) ? `${no}.` : `${no}…`;   // "5." for White, "5…" for Black
+}
+// One row: proper move number + move in notation + analyzer badge + label.
+function renderPlyRow(ply, san, markKey, isLine) {
   const box = $('puzzle-moves');
   if (!box) return;
   const M = MARKS[markKey] || MARKS.good;
-  pzMoveNum++;
   const row = document.createElement('div');
-  row.className = 'pmove';
-  row.innerHTML = `<span class="pm-n">${pzMoveNum}.</span> <b>${escapeHtml(moveTxt)}</b>` +
+  row.className = 'pmove' + (isLine ? ' pmove-line' : '');
+  row.innerHTML = `<span class="pm-n">${plyLabel(ply)}</span> <b>${escapeHtml(san)}</b>` +
     ` <span class="mark ${M.cls}" title="${M.label}">${M.sym}</span> <span class="pm-note">${M.label}</span>`;
   box.appendChild(row);
   box.scrollTop = box.scrollHeight;
+}
+// Start a fresh move list, headed by the objective, showing the graded line from move 1.
+function puzzleMovesHeader(p) {
+  const box = $('puzzle-moves');
+  if (!box) return;
+  box.innerHTML = `<div class="pm-head">📝 Moves — ${escapeHtml(puzzleObjective(p))}</div>`;
+  if (p.line && p.line.length) {
+    let g = C.fromFEN(START_FEN);
+    p.line.forEach((u, idx) => {
+      const mv = C.uciToMove(g, u);
+      renderPlyRow(idx, C.moveToText(g, mv), (p.grades && p.grades[idx]) || 'good', true);
+      g = C.applyMove(g, mv);
+    });
+    pzPlayerPly = p.line.length;
+  } else {
+    // No stored line (mate/tactic/endgame): number the solver's move by the position's move count.
+    pzPlayerPly = (game.state.fullmove - 1) * 2 + (game.state.turn === 'w' ? 0 : 1);
+  }
+}
+// The solver's own move, tagged with its analyzer symbol, continuing the line's numbering.
+function pushPuzzleMove(moveTxt, markKey) {
+  renderPlyRow(pzPlayerPly, moveTxt, markKey, false);
 }
 function pushPuzzleSys(note) {
   const box = $('puzzle-moves');

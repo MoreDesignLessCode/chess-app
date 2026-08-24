@@ -845,6 +845,9 @@ button:focus-visible, input:focus-visible, [tabindex]:focus-visible {
 .pmove b { color: var(--text); font-family: ui-monospace, Menlo, monospace; font-size: 14px; }
 .pmove .mark { margin: 0 2px; }
 .pm-note { color: var(--muted); }
+.pmove-line { opacity: 0.75; }                 /* the lead-up line — context */
+.pmove-line .pm-note { display: none; }        /* keep the history compact: badge only */
+.pmove:not(.pmove-line) b { color: #ffd479; }  /* the solver's own move stands out */
 .pmove-sys { color: #ffa94d; font-weight: 700; padding-left: 2px; }
 
 /* Free-tier chip (gray) and auth email/phone helper note */
