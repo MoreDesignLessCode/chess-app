@@ -2868,32 +2868,11 @@ function pushPuzzleSys(note) {
   box.appendChild(row);
   box.scrollTop = box.scrollHeight;
 }
-// Grade a single played move like the analyzer does: compare it to the best move by
-// centipawn loss and return a MARKS key (best / excellent / good / dubious / mistake /
-// miss / blunder).
-function analyzerMark(state, move) {
-  const before = C.analyze(state, 4);
-  const stm = state.turn;
-  const bestStm = stm === 'w' ? before.evalCp : -before.evalCp;
-  if (before.bestMove && moveToUci(move) === moveToUci(before.bestMove)) return 'best';
-  const ns = C.applyMove(state, move);
-  if (C.gameStatus(ns) === 'checkmate') return 'best';        // you delivered mate
-  const after = C.analyze(ns, 4);
-  const afterStm = stm === 'w' ? after.evalCp : -after.evalCp;
-  const loss = bestStm - afterStm;
-  if (loss <= 15) return 'best';
-  if (loss <= 45) return 'excellent';
-  if (loss <= 90) return 'good';
-  if (loss <= 150) return 'dubious';
-  if (bestStm >= 500 && loss >= 400) return 'miss';           // threw away a clearly winning chance
-  if (loss <= 320) return 'mistake';
-  return 'blunder';
-}
-
 function handlePuzzleMove(move) {
   const moveTxt = C.moveToText(game.state, move);   // notation of the attempt, before we apply it
-  const mark = analyzerMark(game.state, move);      // analyzer symbol for the move played
   const ns = C.applyMove(game.state, move);
+  // In a puzzle there's one winning move: play it = Best; fail to punish = Blunder (worse than a Miss).
+  const mark = puzzleSolved(move, ns) ? 'best' : 'blunder';
   if (puzzleSolved(move, ns)) {
     game.state = ns;
     game.lastMove = { from: move.from, to: move.to };
